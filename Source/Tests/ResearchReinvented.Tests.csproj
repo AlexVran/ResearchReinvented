@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Domain\**\*.cs" Link="Production\Domain\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\Opportunities\LegacyOpportunitySemantics.cs" Link="Production\LegacyOpportunitySemantics.cs" />
     <Compile Include="..\Utilities\ScopedServiceOverride.cs" Link="Production\ScopedServiceOverride.cs" />
     <None Include="..\..\tests\fixtures\**\*.json" Link="fixtures\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

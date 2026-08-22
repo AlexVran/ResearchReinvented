@@ -66,6 +66,8 @@ namespace PeteTimesSix.ResearchReinvented.OpportunityComps
             }
         }
 
+		public RecipeDef PrimaryRecipeDef => primaryRecipeDef;
+
         public override string ShortDesc => String.Concat(ShownCycledRecipe?.label);
         public override TaggedString Subject => new TaggedString(ShownCycledRecipe?.ProducedThingDef?.label ?? ShownCycledRecipe?.label).Colorize(Color.cyan);
         public override bool TargetIsNull => primaryRecipeDef is null;

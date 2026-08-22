@@ -65,6 +65,8 @@ namespace PeteTimesSix.ResearchReinvented.OpportunityComps
             }
         }
 
+		public TerrainDef PrimaryTerrainDef => primaryTerrainDef;
+
         public override string ShortDesc => String.Concat(ShownCycledTerrain?.label);
         public override TaggedString Subject => new TaggedString(ShownCycledTerrain?.label).Colorize(Color.cyan);
         public override bool TargetIsNull => primaryTerrainDef is null;

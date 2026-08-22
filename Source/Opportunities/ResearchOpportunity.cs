@@ -17,13 +17,6 @@ using Verse;
 namespace PeteTimesSix.ResearchReinvented.Opportunities
 {
 
-    public enum ResearchRelation 
-    {
-        Direct,
-        Ancestor,
-        Descendant
-    }
-
     [Flags]
     public enum OpportunityAvailability 
     {
