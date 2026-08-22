@@ -28,29 +28,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 
 		public static Type DriverClass = typeof(JobDriver_AnalyseInPlace);
 
-		private static ResearchProjectDef _matchingOpportunitiesCachedFor;
-		private static ResearchOpportunity[] _matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-		private static IEnumerable<ResearchOpportunity> MatchingOpportunities
-		{
-			get
-			{
-				if (_matchingOpportunitiesCachedFor != Find.ResearchManager.GetProject())
-				{
-					_matchingOpportunitesCache = ResearchOpportunityManager.Instance
-						.GetFilteredOpportunities(null, HandlingMode.Job_Analysis, DriverClass).ToArray();
-						//.GetCurrentlyAvailableOpportunities(true)
-						//.Where(o => o.IsValid() && o.def.handledBy.HasFlag(HandlingMode.Job_Analysis) && o.JobDefs != null && o.JobDefs.Any(job => job.driverClass == DriverClass)).ToArray();
-					_matchingOpportunitiesCachedFor = Find.ResearchManager.GetProject();
-				}
-				return _matchingOpportunitesCache;
-			}
-		}
-		public static void ClearMatchingOpportunityCache()
-		{
-			_matchingOpportunitiesCachedFor = null;
-			_matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-		}
-
+		private static IEnumerable<ResearchOpportunity> MatchingOpportunities => ResearchOpportunityManager.Instance.Execution
+			.QueryCurrent(ActivityHandlerIds.AnalysisFieldThing);
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
             if (Find.ResearchManager.GetProject() == null)
@@ -81,6 +60,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
                 return false;
 
             var opportunity = FilterCacheFor(thing, pawn).FirstOrDefault();
+			if (opportunity == null)
+				return false;
             if (PrototypeKeeper.Instance.IsPrototype(thing) && opportunity.relation != ResearchRelation.Ancestor)
             {
                 JobFailReason.Is(StringsCache.JobFail_IsPrototype, null);
@@ -118,92 +99,54 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 			return job;
 		}
 
-		/*public override float GetPriority(Pawn pawn, TargetInfo target)
-		{
-			var opportunity = OpportunityCache[target.Thing.def].First();
-
-			return pawn.GetStatValue(StatDefOf_Custom.FieldResearchSpeedMultiplier, true) * opportunity.def.GetCategory(opportunity.relation).Settings.researchSpeedMultiplier;
-		}*/
-
 		//cache is built once per tick, to avoid working on already finished opportunities or opportunities from a different project
 		private static int cacheBuiltOnTick = -1;
-		private static Dictionary<ThingDef, HashSet<ResearchOpportunity>> _opportunityCache = new Dictionary<ThingDef, HashSet<ResearchOpportunity>>();
+		private static int cacheBuiltForExecutionRevision = -1;
         public static Dictionary<Map, List<Thing>> _things = new Dictionary<Map, List<Thing>>();
-
-        public static Dictionary<ThingDef, HashSet<ResearchOpportunity>> OpportunityCache
-		{
-			get
-			{
-				if (cacheBuiltOnTick != Find.TickManager.TicksAbs)
-				{
-					BuildCache();
-				}
-				return _opportunityCache;
-			}
-        }
 
         public static List<Thing> ThingsForMap(Map map)
         {
-            if (cacheBuiltOnTick != Find.TickManager.TicksAbs)
+            if (cacheBuiltOnTick != Find.TickManager.TicksAbs || cacheBuiltForExecutionRevision != ResearchOpportunityManager.Instance.Execution.MapIndexRevision)
             {
                 BuildCache();
             }
-            return _things[map];
+            return map != null && _things.TryGetValue(map, out var things) ? things : new List<Thing>();
         }
 
         public static void BuildCache()
 		{
-			_opportunityCache.Clear();
             _things.Clear();
 
             if (Find.ResearchManager.GetProject() == null)
 				return;
-
-			foreach (var opportunity in MatchingOpportunities.Where(o => o.CurrentAvailability == OpportunityAvailability.Available && o.requirement is ROComp_RequiresThing))
-			{
-				var thingDefs = (opportunity.requirement as ROComp_RequiresThing)?.AllThings;
-				if (thingDefs == null || thingDefs.Length == 0)
-				{
-					Log.ErrorOnce($"RR: current research project {Find.ResearchManager.GetProject()} generated a WorkGiver_AnalyzeInPlace opportunity with null or empty requirement!", Find.ResearchManager.GetProject().debugRandomId);
-					continue;
-				}
-				foreach (var thingDef in thingDefs)
-                {
-                    if (!_opportunityCache.ContainsKey(thingDef))
-                        _opportunityCache[thingDef] = new HashSet<ResearchOpportunity>();
-
-                    _opportunityCache[thingDef].Add(opportunity);
-                }
-            }
-
-            var defsToFind = _opportunityCache.Keys.ToList();
 
             foreach (var map in ResearchRuntimeServices.Current.Maps)
             {
                 var list = new List<Thing>();
 
                 _things[map] = list;
-                foreach (var thingDef in defsToFind)
+                var added = new HashSet<Thing>();
+                foreach (var opportunity in ResearchOpportunityManager.Instance.Execution.QueryCurrent(ActivityHandlerIds.AnalysisFieldThing, OpportunityAvailability.Available))
                 {
-                    var things = map.listerThings.ThingsOfDef(thingDef);
-                    foreach (var thing in things)
+                    if (!(opportunity.requirement is ROComp_RequiresThing requiresThing) || requiresThing.AllThings == null)
+                        continue;
+                    foreach (var thingDef in requiresThing.AllThings)
+                    foreach (var thing in map.listerThings.ThingsOfDef(thingDef))
                     {
-                        if (!thing.FactionAllowsAnalysis())
-                            continue;
-
-                        list.Add(thing);
+                        if (added.Add(thing) && thing.FactionAllowsAnalysis())
+                            list.Add(thing);
                     }
-
                 }
             }
 
             cacheBuiltOnTick = Find.TickManager.TicksAbs;
+			cacheBuiltForExecutionRevision = ResearchOpportunityManager.Instance.Execution.MapIndexRevision;
 		}
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static HashSet<ResearchOpportunity> FilterCacheFor(Thing thing, Pawn pawn)
+        private static IReadOnlyList<ResearchOpportunity> FilterCacheFor(Thing thing, Pawn pawn)
         {
-            return OpportunityCache[thing.def];
+            return ResearchOpportunityManager.Instance.Execution.QueryForMap(pawn.MapHeld, ActivityHandlerIds.AnalysisFieldThing, thing.def);
         }
     }
 }

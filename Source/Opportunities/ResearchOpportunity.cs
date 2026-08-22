@@ -141,6 +141,8 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
             authoritativeKey = key ?? throw new ArgumentNullException(nameof(key));
         }
 
+        internal OpportunityKey AuthoritativeKey => authoritativeKey;
+
         internal float LegacyStoredProgress => currentProgress;
 
         public TaggedString ShortDesc 
@@ -181,94 +183,14 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
             Scribe_Values.Look(ref isForcedRare, "isForcedRare");
         }
 
-        private bool ResearchPerformed(float amount, Pawn researcher, float? moteAmount, string moteSubjectName = null, float moteOffsetHint = 0f)
-        {
-            amount *= Find.Storyteller.difficulty.researchSpeedFactor; 
-            amount *= def.GetCategory(relation).Settings.researchSpeedMultiplier;
-            if (researcher != null && researcher.Faction != null)
-            {
-                amount /= project.CostFactor(researcher.Faction.def.techLevel);
-            }
-            if (DebugSettings.fastResearch)
-            {
-                amount *= 500f;
-            }
-
-            if (Progress + amount >= MaximumProgress)
-                amount = MaximumProgress - Progress;
-            if (moteAmount.HasValue)
-            {
-                if (Progress + moteAmount >= MaximumProgress)
-                    moteAmount = MaximumProgress - Progress;
-            }
-            if (authoritativeKey != null)
-                amount = ResearchOpportunityManager.Instance.OpportunityService.ApplyProgress(authoritativeKey, amount);
-            else
-                currentProgress += amount;
-            if (researcher != null)
-            {
-                researcher.records.AddTo(RecordDefOf.ResearchPointsResearched, amount);
-
-                if (ResearchRuntimeServices.Current.Settings.showProgressMotes)
-                {
-                    if (moteAmount.HasValue)
-                    {
-                        DoResearchProgressMote(researcher, moteAmount.Value, moteSubjectName, moteOffsetHint);
-                    }
-                }
-            }
-
-            float total = ResearchRuntimeServices.Current.ResearchManager.GetProgress(project);
-            total += amount;
-            ResearchManagerAccess.Field_progress[project] = total;
-            if (project.IsFinished)
-            {
-                ResearchOpportunityManager.Instance.FinishProject(project, true, researcher);
-            }
-
-            return project.IsFinished || this.IsFinished;
-        }
-
         public bool ResearchTickPerformed(float amount, Pawn researcher, int tickDelta = 1, int moteModulo = 600)
         {
-            if (!researcher.WorkTypeIsDisabled(WorkTypeDefOf.Research))
-            {
-                researcher.skills.Learn(SkillDefOf.Intellectual, 0.1f * tickDelta);
-
-                var tickAmount = amount * tickDelta;
-                int? moteAmount = null;
-                if (researcher.IsHashIntervalTick(moteModulo))
-                    moteAmount = (int)(amount * moteModulo);
-                return ResearchPerformed(tickAmount, researcher, moteAmount);
-            }
-            else
-            {
-                Log.Warning($"RR: Pawn {researcher} tried to do research tick despite being incapable of research");
-                return false;
-            }
+            return ResearchOpportunityManager.Instance.Execution.ApplyTick(this, amount, researcher, tickDelta, moteModulo);
         }
 
         public bool ResearchChunkPerformed(Pawn researcher, HandlingMode mode, float amount, float modifier, float xp, string moteSubjectName = null, float moteOffsetHint = 0f)
         {
-            var startAmount = amount;
-
-            if (!researcher.WorkTypeIsDisabled(WorkTypeDefOf.Research))
-            {
-                researcher.skills.Learn(SkillDefOf.Intellectual, xp);
-
-                amount *= modifier;
-                amount = Math.Min(amount, MaximumProgress);
-
-                if (ResearchReinvented_Debug.debugPrintouts)
-                    Log.Message($"performing research chunk for {ShortDesc}: modifier: {modifier} startAmount: {startAmount} amount {amount} ({amount * def.GetCategory(relation).Settings.researchSpeedMultiplier} after speedmult) (of {MaximumProgress})");
-
-                return ResearchPerformed(amount, researcher, amount, moteSubjectName, moteOffsetHint);
-            }
-            else 
-            {
-                Log.Warning($"RR: Pawn {researcher} tried to do research chunk despite being incapable of research");
-                return false;
-            }
+            return ResearchOpportunityManager.Instance.Execution.ApplyChunk(this, researcher, amount, modifier, xp, moteSubjectName, moteOffsetHint);
         }
 
         public void DoResearchProgressMote(Pawn pawn, float amount, string moteSubjectName = null, float moteOffsetHint = 0f)
@@ -289,7 +211,7 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
 
 		public void FinishImmediately()
 		{
-            ResearchPerformed(MaximumProgress, null, null);
+			ResearchOpportunityManager.Instance.Execution.FinishImmediately(this);
 		}
 	}
 }

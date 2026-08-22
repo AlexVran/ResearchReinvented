@@ -5,6 +5,7 @@ using PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using RimWorld.QuestGen;
 using System;
@@ -47,7 +48,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Social
             if (map == null || !map.IsPlayerHome)
                 return; //not home
 
-            var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Social, faction);
+            var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Social, OpportunityAvailability.Available, faction);
                 //.GetCurrentlyAvailableOpportunities()
                 //.Where(o => o.def.handledBy.HasFlag(HandlingMode.Social) 
                 //    && o.requirement is ROComp_RequiresFaction requiresFaction 

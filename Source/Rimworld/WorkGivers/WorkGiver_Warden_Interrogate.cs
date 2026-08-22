@@ -18,29 +18,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
     {
         public static Type DriverClass = typeof(PeteTimesSix.ResearchReinvented.Rimworld.JobDrivers.JobDriver_InterrogatePrisoner);
 
-        private static ResearchProjectDef _matchingOpportunitiesCachedFor;
-        private static ResearchOpportunity[] _matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-        public static IEnumerable<ResearchOpportunity> MatchingOpportunities
-        {
-            get
-            {
-                if (_matchingOpportunitiesCachedFor != Find.ResearchManager.GetProject())
-                {
-                    _matchingOpportunitesCache = ResearchOpportunityManager.Instance
-                        .GetFilteredOpportunities(null, HandlingMode.Social).ToArray();
-                        //.GetCurrentlyAvailableOpportunities(true)
-                        //.Where(o => o.IsValid() && o.def.handledBy.HasFlag(HandlingMode.Social)).ToArray();
-                    _matchingOpportunitiesCachedFor = Find.ResearchManager.GetProject();
-                }
-                return _matchingOpportunitesCache;
-            }
-        }
-        public static void ClearMatchingOpportunityCache()
-        {
-            _matchingOpportunitiesCachedFor = null;
-            _matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-        }
-
+        public static IEnumerable<ResearchOpportunity> MatchingOpportunities => ResearchOpportunityManager.Instance.Execution
+            .QueryCurrent(ActivityHandlerIds.Social);
         public override bool ShouldSkip(Pawn pawn, bool forced = false)
         {
             if (base.ShouldSkip(pawn, forced))

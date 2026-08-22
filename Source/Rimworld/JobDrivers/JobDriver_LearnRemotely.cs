@@ -41,7 +41,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.JobDrivers
                 yield break;
             }
 
-            var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Social, faction);
+            var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Social, OpportunityAvailability.Available, faction);
                 //.GetCurrentlyAvailableOpportunities()
                 //.Where(o => o.def.handledBy.HasFlag(HandlingMode.Social) && o.requirement is ROComp_RequiresFaction requiresFaction && requiresFaction.MetByFaction(faction))
                 //.Where(o => !o.IsFinished)

@@ -33,7 +33,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.InteractionWorkers
             letterDef = null;
             lookTargets = null;
 
-            var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Social, recipient);
+            var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Social, OpportunityAvailability.Available, recipient);
                 //.GetCurrentlyAvailableOpportunities()
                 //.Where(o => o.def.handledBy.HasFlag(HandlingMode.Social) && o.requirement.MetBy(recipient))
                 //.FirstOrDefault();

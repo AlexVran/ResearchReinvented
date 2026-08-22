@@ -12,6 +12,7 @@ using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.Data;
 using PeteTimesSix.ResearchReinvented.Utilities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 
 namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Ingestibles
 {
@@ -27,7 +28,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Ingestibles
             if (!ingester.CanNowDoResearch())
                 return;
             
-            var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Special_OnIngest, ingestible);
+            var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Ingest, OpportunityAvailability.Available, ingestible);
             if (opportunity != null)
             {
                 if (ResearchReinvented_Debug.debugPrintouts)

@@ -3,6 +3,7 @@ using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.Rimworld.MiscData;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using PeteTimesSix.ResearchReinvented.Utilities;
 using RimWorld;
 using System;
@@ -33,7 +34,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
                     if (!actor.CanEverDoResearch())
                         return;
 
-                    var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Special_Tooling, bench);
+                    var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Tooling, OpportunityAvailability.Available, bench);
 
                     if (opportunity != null)
                     {

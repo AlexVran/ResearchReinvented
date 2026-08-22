@@ -31,7 +31,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.JobDrivers
 
 		protected override IEnumerable<Toil> MakeNewToils()
 		{
-			ResearchOpportunity opportunity = WorkGiver_AnalyseInPlace.OpportunityCache[TargetThing.def].FirstOrDefault();
+			ResearchOpportunity opportunity = ResearchOpportunityManager.Instance.Execution
+				.QueryForMap(pawn.MapHeld, ActivityHandlerIds.AnalysisFieldThing, TargetThing.def).FirstOrDefault();
 			//ResearchOpportunity opportunity = ResearchOpportunityManager.instance.GetOpportunityForJob(this.job);
 			ResearchProjectDef currentProject = Find.ResearchManager.GetProject();
 

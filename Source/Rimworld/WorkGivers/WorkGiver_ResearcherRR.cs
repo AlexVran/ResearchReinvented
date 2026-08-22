@@ -19,29 +19,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 	{
 		public static Type DriverClass = typeof(JobDriver_ResearchRR);
 
-		private static ResearchProjectDef _matchingOpportunitiesCachedFor;
-		private static ResearchOpportunity[] _matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-		public static IEnumerable<ResearchOpportunity> MatchingOpportunities
-		{
-			get
-			{
-				if (_matchingOpportunitiesCachedFor != Find.ResearchManager.GetProject())
-				{
-					_matchingOpportunitesCache = ResearchOpportunityManager.Instance
-						.GetFilteredOpportunities(null, HandlingMode.Job_Theory, DriverClass).ToArray();
-						//.GetCurrentlyAvailableOpportunities(true)
-						//.Where(o => o.IsValid() && o.def.handledBy.HasFlag(HandlingMode.Job_Theory) && o.JobDefs != null && o.JobDefs.Any(job => job.driverClass == DriverClass)).ToArray();
-					_matchingOpportunitiesCachedFor = Find.ResearchManager.GetProject();
-				}
-				return _matchingOpportunitesCache;
-			}
-		}
-		public static void ClearMatchingOpportunityCache()
-		{
-			_matchingOpportunitiesCachedFor = null;
-			_matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-		}
-
+		public static IEnumerable<ResearchOpportunity> MatchingOpportunities => ResearchOpportunityManager.Instance.Execution
+			.QueryCurrent(ActivityHandlerIds.Theory);
 		public override ThingRequest PotentialWorkThingRequest
 		{
 			get
@@ -64,7 +43,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 
 		public override bool ShouldSkip(Pawn pawn, bool forced = false)
 		{
-			return Find.ResearchManager.GetProject() == null || OpportunityCache == null;
+			return Find.ResearchManager.GetProject() == null || CurrentOpportunity == null;
 		}
 
 		public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -74,7 +53,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 			{
 				return false;
 			}
-			var opportunity = OpportunityCache;
+			var opportunity = CurrentOpportunity;
 			if (opportunity == null)
 			{
 				//Log.Warning("found no research opportunities when looking for a research job on a research bench => the basic research should always be available!");
@@ -106,19 +85,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 			return t.Thing.GetStatValue(StatDefOf.ResearchSpeedFactor, true);
 		}
 
-		private static int cacheBuiltOnTick = -1;
-		private static ResearchOpportunity _opportunityCache;
-
-		public static ResearchOpportunity OpportunityCache
-		{
-			get
-			{
-				if (cacheBuiltOnTick != Find.TickManager.TicksAbs)
-				{
-					_opportunityCache = MatchingOpportunities.Where(o => o.CurrentAvailability == OpportunityAvailability.Available).FirstOrDefault();
-				}
-				return _opportunityCache;
-			}
-		}
+		public static ResearchOpportunity CurrentOpportunity => ResearchOpportunityManager.Instance.Execution
+			.FindCurrent(ActivityHandlerIds.Theory, OpportunityAvailability.Available);
 	}
 }

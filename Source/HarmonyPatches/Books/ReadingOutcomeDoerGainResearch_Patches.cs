@@ -3,6 +3,7 @@ using PeteTimesSix.ResearchReinvented.Data;
 using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Books
 
             foreach (var (project, speed) in values)
             {
-                var opportunity = ResearchOpportunityManager.Instance.GetOpportunitiesFilterForProjects(OpportunityAvailability.Available, HandlingMode.Special_Books, values.Keys, (op) => op.requirement.MetBy(project)).FirstOrDefault();
+                var opportunity = ResearchOpportunityManager.Instance.Execution.QueryProject(ActivityHandlerIds.Books, project, OpportunityAvailability.Available, project).FirstOrDefault();
                 if(opportunity != null)
                 {
                     if (ResearchReinvented_Debug.debugPrintouts)
@@ -95,7 +96,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Books
                 }
                 else
                 {
-                    var opportunity = ResearchOpportunityManager.Instance.GetOpportunitiesFilterForProjects(OpportunityAvailability.Available, HandlingMode.Special_Books, values.Keys, (op) => op.requirement.MetBy(project)).FirstOrDefault();
+                    var opportunity = ResearchOpportunityManager.Instance.Execution.QueryProject(ActivityHandlerIds.Books, project, OpportunityAvailability.Available, project).FirstOrDefault();
                     if (opportunity == null)
                     {
                         text = string.Format($" - {project.LabelCap}: {"PerHour".Translate(amount.ToStringDecimalIfSmall())} ({"RR_CategoryFinishedBook".Translate()})");
@@ -144,7 +145,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Books
                 if (reader.WorkTypeIsDisabled(WorkTypeDefOf.Research))
                     continue;
 
-                var opportunity = ResearchOpportunityManager.Instance.GetOpportunitiesFilterForProjects(OpportunityAvailability.Available, HandlingMode.Special_Books, values.Keys, (op) => op.requirement.MetBy(project)).FirstOrDefault();
+                var opportunity = ResearchOpportunityManager.Instance.Execution.QueryProject(ActivityHandlerIds.Books, project, OpportunityAvailability.Available, project).FirstOrDefault();
                 if (opportunity != null)
                 {
                     opportunity.ResearchTickPerformed(speed * factor, reader);

@@ -33,6 +33,9 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         private readonly OpportunityService _opportunityService = new OpportunityService();
         internal IOpportunityService OpportunityService => _opportunityService;
 
+        private readonly ResearchExecutionService _execution;
+        public ResearchExecutionService Execution => _execution;
+
         [Unsaved(false)]
         private OpportunitySaveRootData _opportunitySaveRoot;
 
@@ -78,6 +81,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         public ResearchOpportunityManager(Game game)
         {
+            _execution = new ResearchExecutionService(this);
         }
 
         public override void GameComponentTick()
@@ -106,6 +110,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         {
             base.FinalizeInit();
             StartupChecks();
+            _execution.RunStartupChecks();
         }
 
         public void StartupChecks() 
@@ -378,6 +383,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             _projectsGenerated.Remove(project);
             _categoryStores.RemoveAll(cs => cs.project == project);
             _opportunityService.RemoveProject(IdentityFor<ResearchProjectDef>(project));
+            _execution.RemoveProject(project);
 
             if (_currentProject == project)
             {
@@ -395,6 +401,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             _categoryStores?.Clear();
             _projectsGenerated?.Clear();
             _opportunityService.Reset();
+            _execution.Reset();
             clearedThisTick = true;
         }
 
@@ -411,13 +418,27 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         public void GenerateOpportunities(ResearchProjectDef project, bool forceRegen)
         {
-            if(_currentProject == project && !forceRegen) 
+            GenerateOpportunities(project, forceRegen, activate: true);
+        }
+
+        internal void EnsureGeneratedForExecution(ResearchProjectDef project)
+        {
+            if (project != null && !_projectsGenerated.Contains(project))
+                GenerateOpportunities(project, false, activate: false);
+        }
+
+        private void GenerateOpportunities(ResearchProjectDef project, bool forceRegen, bool activate)
+        {
+            if (activate && _currentProject == project && !forceRegen)
             {
                 return;
             }
-            _currentProjectOpportunitiesCache = null;
-            _currentOpportunityCategoriesCache = null;
-            _currentProject = project;
+            if (activate)
+            {
+                _currentProjectOpportunitiesCache = null;
+                _currentOpportunityCategoriesCache = null;
+                _currentProject = project;
+            }
             if (project == null)
                 return;
             if (_opportunityService.IsReadOnly)
@@ -433,7 +454,8 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 }
                 else
                 {
-					_opportunityService.ActiveProject = IdentityFor<ResearchProjectDef>(project);
+                    if (activate)
+                        _opportunityService.ActiveProject = IdentityFor<ResearchProjectDef>(project);
 					if (ResearchReinvented_Debug.shadowComparisons && ResearchRuntimeServices.Current.CurrentResearchProject == project)
 						ResearchShadowComparisonSession.Compare(
 							project,
@@ -449,7 +471,8 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 projectIdentity,
                 generated.Specifications,
                 generated.Budgets);
-            _opportunityService.ActiveProject = projectIdentity;
+            if (activate)
+                _opportunityService.ActiveProject = projectIdentity;
             foreach (var projection in generated.Projections)
                 projection.Legacy.BindAuthoritativeState(projection.Specification.Spec.Key);
             var newOpportunities = generated.Projections.Select(projection => projection.Legacy).ToList();
@@ -468,6 +491,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
             _allGeneratedOpportunities.AddRange(newOpportunities.Where(o => o.IsValid()));
             _projectsGenerated.Add(project);
+            _execution.SynchronizeProject(project, newOpportunities.Where(o => o.IsValid()));
 
             foreach (var rejection in generated.Rejections.Take(32))
                 Log.Warning($"RR state: specification projection rejected {rejection.Kind}: {rejection.Detail}");
@@ -480,7 +504,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
             if (ResearchReinvented_Debug.debugPrintouts)
             {
-                Log.Message($"Listing generated opportunities for current project {_currentProject.label}...");
+                Log.Message($"Listing generated opportunities for project {project.label}...");
                 foreach (var opportunity in newOpportunities)
                 {
                     Log.Message($" |-- {opportunity.ShortDesc} -- {opportunity.debug_source} (imp.: {opportunity.importance})");
@@ -584,7 +608,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             _opportunityService.RestoreLegacy(state!, budgets, active, projects!, changeTicker);
         }
 
-        private static DefIdentity IdentityFor<TDef>(TDef definition) where TDef : Def => new DefIdentity(typeof(TDef).Name, definition.defName);
+        internal static DefIdentity IdentityFor<TDef>(TDef definition) where TDef : Def => new DefIdentity(typeof(TDef).Name, definition.defName);
 
         private static TDef ResolveDef<TDef>(DefIdentity identity) where TDef : Def
         {

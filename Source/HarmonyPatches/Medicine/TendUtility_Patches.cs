@@ -4,6 +4,7 @@ using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.Utilities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -27,12 +28,13 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Medicine
             DoForObserver(patient, medicine.def);
         }
 
-        public static void DoForObserver(Pawn observer, ThingDef medicine, float offsetHint = 0f) 
+        public static void DoForObserver(Pawn observer, ThingDef medicine, float offsetHint = 0f, bool surgery = false)
         {
             if (medicine == null || !observer.CanNowDoResearch())
                 return;
 
-            var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Special_Medicine, medicine);
+            var handlerId = surgery ? ActivityHandlerIds.MedicineSurgery : ActivityHandlerIds.MedicineTend;
+            var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(handlerId, OpportunityAvailability.Available, medicine);
 
             if (opportunity != null)
             {

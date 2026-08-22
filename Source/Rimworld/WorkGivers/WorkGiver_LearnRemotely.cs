@@ -21,29 +21,9 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 	{
 		public static Type DriverClass = typeof(JobDriver_LearnRemotely);
 
-		private static ResearchProjectDef _matchingOpportunitiesCachedFor;
-		private static ResearchOpportunity[] _matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-		public static IEnumerable<ResearchOpportunity> MatchingOpportunities
-		{
-			get
-			{
-				if (_matchingOpportunitiesCachedFor != Find.ResearchManager.GetProject())
-				{
-                    _matchingOpportunitesCache = ResearchOpportunityManager.Instance
-                        .GetFilteredOpportunities(null, HandlingMode.Social, (op) => op.requirement is ROComp_RequiresFaction requiresFaction && requiresFaction.faction != Faction.OfPlayer).ToArray();
-                        //.GetCurrentlyAvailableOpportunities(true)
-						//.Where(o => o.IsValid() && o.def.handledBy.HasFlag(HandlingMode.Social) && o.requirement is ROComp_RequiresFaction requiresFaction && requiresFaction.faction != Faction.OfPlayer).ToArray();
-                    _matchingOpportunitiesCachedFor = Find.ResearchManager.GetProject();
-				}
-				return _matchingOpportunitesCache;
-			}
-		}
-		public static void ClearMatchingOpportunityCache()
-		{
-			_matchingOpportunitiesCachedFor = null;
-			_matchingOpportunitesCache = Array.Empty<ResearchOpportunity>();
-		}
-
+		public static IEnumerable<ResearchOpportunity> MatchingOpportunities => ResearchOpportunityManager.Instance.Execution
+			.QueryCurrent(ActivityHandlerIds.Social)
+			.Where(opportunity => opportunity.requirement is ROComp_RequiresFaction requiresFaction && requiresFaction.faction != Faction.OfPlayer);
         private static ThingDef[] _commsConsoles;
         public static ThingDef[] CommsConsoles
         {
@@ -98,7 +78,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
             if (!commsConsole.CanUseCommsNow)
                 return false;
 
-            if (OpportunityCache == null)
+            if (CurrentOpportunity == null)
                 return false;
 
             if (!(pawn.CanReserveSittableOrSpot(thing.InteractionCell, forced) &&
@@ -110,7 +90,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 
         public override Job JobOnThing(Pawn pawn, Thing thing, bool forced = false)
         {
-            var opportunity = OpportunityCache;
+            var opportunity = CurrentOpportunity;
 
             JobDef jobDef = JobDefOf_Custom.RR_LearnRemotely;
             Job job = JobMaker.MakeJob(jobDef, thing, expiryInterval: 3000, checkOverrideOnExpiry: true);
@@ -123,25 +103,13 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 			return t.Thing.GetStatValue(StatDefOf.ResearchSpeedFactor, true);
 		}
 
-        //cache is built once per tick, to avoid working on already finished opportunities or opportunities from a different project
-        private static int cacheBuiltOnTick = -1;
-        private static ResearchOpportunity _opportunityCache;
-
-        public static ResearchOpportunity OpportunityCache
-        {
-            get
-            {
-                if (cacheBuiltOnTick != Find.TickManager.TicksAbs)
-                {
-                    _opportunityCache = MatchingOpportunities.Where(o => o.CurrentAvailability == OpportunityAvailability.Available 
-                            && o.requirement is ROComp_RequiresFaction requiresFaction 
-                            && !FactionLectureManager.Instance.IsOnCooldown(requiresFaction.faction)
-                            && requiresFaction?.faction.RelationKindWith(Faction.OfPlayer) == FactionRelationKind.Ally)
-                        .OrderByDescending(o => o.MaximumProgress)
-                        .FirstOrDefault();
-                }
-                return _opportunityCache;
-            }
-        }
+        public static ResearchOpportunity CurrentOpportunity => MatchingOpportunities
+            .Where(o => o.CurrentAvailability == OpportunityAvailability.Available
+                && o.requirement is ROComp_RequiresFaction requiresFaction
+                && !FactionLectureManager.Instance.IsOnCooldown(requiresFaction.faction)
+                && requiresFaction.faction.RelationKindWith(Faction.OfPlayer) == FactionRelationKind.Ally)
+            .OrderByDescending(o => o.MaximumProgress)
+            .ThenBy(o => o.AuthoritativeKey)
+            .FirstOrDefault();
     }
 }

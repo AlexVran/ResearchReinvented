@@ -33,11 +33,11 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.InteractionWorkers
             ResearchOpportunity opportunity = null;
             // First try to count this as faction information exchange.
             if (opportunity == null && recipient.HasExtraHomeFaction())
-                opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Social, recipient);
+                opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Social, OpportunityAvailability.Available, recipient);
             if (opportunity == null && initiator.HasExtraHomeFaction())
-                opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Social, initiator);
+                opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Social, OpportunityAvailability.Available, initiator);
             if (opportunity == null)
-                opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Social, recipient);
+                opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.Social, OpportunityAvailability.Available, recipient);
                 //.GetCurrentlyAvailableOpportunities()
                 //.Where(o => o.def.handledBy.HasFlag(HandlingMode.Social) && o.requirement.MetBy(recipient))
                 //.FirstOrDefault();

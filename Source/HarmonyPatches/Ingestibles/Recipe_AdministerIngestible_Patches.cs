@@ -4,6 +4,7 @@ using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.Utilities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Ingestibles
             if (!observer.CanNowDoResearch())
                 return;
 
-            var opportunity = ResearchOpportunityManager.Instance.GetFirstFilteredOpportunity(OpportunityAvailability.Available, HandlingMode.Special_OnIngest_Observable, ingestible);
+            var opportunity = ResearchOpportunityManager.Instance.Execution.FindCurrent(ActivityHandlerIds.ObserveIngest, OpportunityAvailability.Available, ingestible);
 
             if(opportunity != null)
             {

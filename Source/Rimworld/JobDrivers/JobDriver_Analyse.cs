@@ -56,12 +56,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.JobDrivers
 				yield break;
 			}
 
-			HashSet<ResearchOpportunity> matchingOpportunities;
-			ResearchOpportunity opportunity = null;
-			if (WorkGiver_Analyse.OpportunityCache.TryGetValue(unminifiedThing.def, out matchingOpportunities))
-			{
-				opportunity = matchingOpportunities.FirstOrDefault();
-			}
+			ResearchOpportunity opportunity = ResearchOpportunityManager.Instance.Execution
+				.QueryForMap(pawn.MapHeld, ActivityHandlerIds.AnalysisBench, unminifiedThing.def).FirstOrDefault();
 
             //ResearchOpportunity opportunity = ResearchOpportunityManager.instance.GetOpportunityForJob(this.job);
             ResearchProjectDef currentProject = Find.ResearchManager.GetProject();

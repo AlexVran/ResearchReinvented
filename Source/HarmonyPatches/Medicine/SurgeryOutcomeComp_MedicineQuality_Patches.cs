@@ -25,8 +25,8 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Medicine
                 {
                     if(count > 0)
                     {
-                        TendUtility_Patches.DoForObserver(surgeon, medicine, 0.5f/*avoid overlap with patient's mote*/);
-                        TendUtility_Patches.DoForObserver(patient, medicine);
+                        TendUtility_Patches.DoForObserver(surgeon, medicine, 0.5f/*avoid overlap with patient's mote*/, surgery: true);
+                        TendUtility_Patches.DoForObserver(patient, medicine, surgery: true);
                     }
                 }
             }
@@ -36,8 +36,8 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Medicine
                 {
                     if (ingredient.def.IsMedicine)
                     {
-                        TendUtility_Patches.DoForObserver(surgeon, ingredient.def, 1.0f/*avoid overlap with patient's mote*/);
-                        TendUtility_Patches.DoForObserver(patient, ingredient.def);
+                        TendUtility_Patches.DoForObserver(surgeon, ingredient.def, 1.0f/*avoid overlap with patient's mote*/, surgery: true);
+                        TendUtility_Patches.DoForObserver(patient, ingredient.def, surgery: true);
                         return;
                     }
                 }
