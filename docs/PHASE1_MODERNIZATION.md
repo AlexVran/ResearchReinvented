@@ -42,8 +42,7 @@ changing gameplay code. The original checkout remains untouched.
 - `scripts/check.py` parsed 129 XML files and built both configurations.
 - A normal build left the real RimWorld `Mods/ResearchReinvented` target absent.
 - Public package creation was byte-for-byte deterministic across consecutive
-  runs. Final ZIP SHA-256:
-  `B7EB4C9CC15420AB98944001360A3CA81E840F7E08629A798AFAA1991C52E98C`.
+  runs at the verified commit; the handoff records that commit's output hash.
 - Shared `modctl audit-package` returned `ok`.
 - Shared `modctl validate` returned zero errors. Its sole warning is the
   intentionally deferred Phase 2 independent test project.
