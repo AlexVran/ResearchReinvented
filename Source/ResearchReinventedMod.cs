@@ -88,7 +88,7 @@ namespace PeteTimesSix.ResearchReinvented
 
         private static void AssociateKitsWithResearchProjects()
         {
-            var researchKits = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => d.HasComp(typeof(Comp_ResearchKit)));
+            var researchKits = ResearchRuntimeServices.Current.AllDefsListForReading<ThingDef>().Where(d => d.HasComp(typeof(Comp_ResearchKit)));
             foreach (var kit in researchKits)
             {
                 var kitComp = kit.GetCompProperties<CompProperties_ResearchKit>();
@@ -126,7 +126,7 @@ namespace PeteTimesSix.ResearchReinvented
                     }
 
                     //except the recipeMaker has probably already made the recipes, so lets fix those up too
-                    foreach(var recipe in DefDatabase<RecipeDef>.AllDefsListForReading.Where(r => r.ProducedThingDef == kit))
+                    foreach(var recipe in ResearchRuntimeServices.Current.AllDefsListForReading<RecipeDef>().Where(r => r.ProducedThingDef == kit))
                     {
                         if (recipe.researchPrerequisites == null)
                             recipe.researchPrerequisites = new List<ResearchProjectDef>();
@@ -139,7 +139,7 @@ namespace PeteTimesSix.ResearchReinvented
 
         private static void AddRarityModExtensions() 
         {
-            foreach (var raresList in DefDatabase<RaresListDef>.AllDefsListForReading) 
+            foreach (var raresList in ResearchRuntimeServices.Current.AllDefsListForReading<RaresListDef>())
             {
                 if(raresList.things != null)
                 {

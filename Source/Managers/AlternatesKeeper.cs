@@ -1,5 +1,6 @@
 ﻿using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             Dictionary<ThingDef, HashSet<ThingDef>> altsSimilarDict = new();
             Dictionary<TerrainDef, HashSet<TerrainDef>> altTerrainsSimilarDict = new();
             Dictionary<RecipeDef, HashSet<RecipeDef>> altRecipesSimilarDict = new();
-            foreach (var altsDef in DefDatabase<AlternateResearchSubjectsDef>.AllDefsListForReading)
+            foreach (var altsDef in ResearchRuntimeServices.Current.AllDefsListForReading<AlternateResearchSubjectsDef>())
             {
                 if(altsDef.originals != null)
                 {

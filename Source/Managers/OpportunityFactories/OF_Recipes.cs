@@ -75,7 +75,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers.OpportunityFactories
             HashSet<RecipeDef> recipes = new HashSet<RecipeDef>();
 
             recipes.AddRange(
-                DefDatabase<RecipeDef>.AllDefsListForReading
+                ResearchRuntimeServices.Current.AllDefsListForReading<RecipeDef>()
                     .Where(r => r.researchPrerequisite == project || (r.researchPrerequisites != null && r.researchPrerequisites.Contains(project)))
                 );
 
@@ -98,7 +98,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers.OpportunityFactories
                     if(unlock is ThingDef asThing)
                     {
                         recipes.AddRange(
-                            DefDatabase<RecipeDef>.AllDefsListForReading
+                            ResearchRuntimeServices.Current.AllDefsListForReading<RecipeDef>()
                                 .Where(r => r.products.Any(tdc => tdc.thingDef == asThing))
                         );
                     }

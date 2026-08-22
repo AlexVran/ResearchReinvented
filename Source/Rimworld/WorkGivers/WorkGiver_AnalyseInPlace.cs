@@ -4,6 +4,7 @@ using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using PeteTimesSix.ResearchReinvented.Rimworld.JobDrivers;
 using PeteTimesSix.ResearchReinvented.Rimworld.MiscData;
 using PeteTimesSix.ResearchReinvented.Utilities;
@@ -177,7 +178,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 
             var defsToFind = _opportunityCache.Keys.ToList();
 
-            foreach (var map in Find.Maps)
+            foreach (var map in ResearchRuntimeServices.Current.Maps)
             {
                 var list = new List<Thing>();
 

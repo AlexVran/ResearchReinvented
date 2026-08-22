@@ -1,5 +1,6 @@
 ﻿using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Opportunities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers.OpportunityFactories
         private static void PrepareAncestryTree()
         {
             ancestorsTree = new();
-            foreach(var project in DefDatabase<ResearchProjectDef>.AllDefsListForReading)
+            foreach(var project in ResearchRuntimeServices.Current.AllDefsListForReading<ResearchProjectDef>())
             {
                 try
                 {

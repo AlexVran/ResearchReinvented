@@ -12,7 +12,10 @@
   "dependencies": {
     "Krafs.Rimworld.Ref": "1.6.4871",
     "Lib.Harmony.Ref": "2.4.2",
-    "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
+    "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3",
+    "Microsoft.NET.Test.Sdk": "18.9.0",
+    "xunit": "2.9.3",
+    "xunit.runner.visualstudio": "4.0.0"
   },
   "deployment": {
     "pairedBridgeTools": false,

@@ -81,8 +81,8 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
 
         public float ProgressFraction => Progress / MaximumProgress;
         public bool IsFinished => ProgressFraction >= 1f;
-        public bool IsRare => isForcedRare ? true : requirement.IsRare;
-        public bool IsFreebie => isForcedFreebie ? true : requirement.IsFreebie;
+        public bool IsRare => LegacyOpportunitySemantics.ResolveFlag(isForcedRare, requirement.IsRare);
+        public bool IsFreebie => LegacyOpportunitySemantics.ResolveFlag(isForcedFreebie, requirement.IsFreebie);
 
 
         private List<JobDef> _jobDefsCached;
@@ -192,7 +192,7 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
             {
                 researcher.records.AddTo(RecordDefOf.ResearchPointsResearched, amount);
 
-                if (ResearchReinventedMod.Settings.showProgressMotes)
+                if (ResearchRuntimeServices.Current.Settings.showProgressMotes)
                 {
                     if (moteAmount.HasValue)
                     {
@@ -201,7 +201,7 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
                 }
             }
 
-            float total = Find.ResearchManager.GetProgress(project);
+            float total = ResearchRuntimeServices.Current.ResearchManager.GetProgress(project);
             total += amount;
             ResearchManagerAccess.Field_progress[project] = total;
             if (project.IsFinished)
@@ -267,7 +267,7 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
         }
         public string GetUniqueLoadID()
         {
-            return "ResearchOpportunity_" + this.loadID;
+            return LegacyOpportunitySemantics.FormatLoadId(loadID);
         }
 
 		public void FinishImmediately()

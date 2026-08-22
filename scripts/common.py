@@ -10,6 +10,7 @@ from typing import Iterable, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT / "Source" / "ResearchReinvented.csproj"
+TEST_PROJECT = ROOT / "Source" / "Tests" / "ResearchReinvented.Tests.csproj"
 ASSEMBLY_NAME = "ResearchReinvented.dll"
 
 

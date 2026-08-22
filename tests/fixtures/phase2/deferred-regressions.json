@@ -1,0 +1,41 @@
+{
+  "cases": [
+    {
+      "id": "github-33-melee-weapon-cache",
+      "ownerPhase": "9",
+      "phase2Evidence": "contract-only; the Phase 0 fixtures contain no matching live execution transition"
+    },
+    {
+      "id": "github-24-settings-scroll",
+      "ownerPhase": "10",
+      "phase2Evidence": "contract-only; this requires UI evidence"
+    },
+    {
+      "id": "github-22-missing-xml-parent",
+      "ownerPhase": "12",
+      "phase2Evidence": "contract-only; malformed content hardening is deferred"
+    },
+    {
+      "id": "github-20-bills-vanish",
+      "ownerPhase": "11",
+      "phase2Evidence": "contract-only; neither Phase 0 save contains active prototypes"
+    },
+    {
+      "id": "github-19-combat-extended-patch",
+      "ownerPhase": "11-12",
+      "phase2Evidence": "contract-only; Harmony isolation requires game-owned behavior"
+    },
+    {
+      "id": "argonic-core-prototype-completion",
+      "ownerPhase": "11",
+      "phase2Evidence": "the compatibility generator context is characterized; the prototype runtime repair is not"
+    },
+    {
+      "id": "optional-anomaly-study",
+      "ownerPhase": "9-13",
+      "phase2Evidence": "Anomaly generator subjects are characterized; Study execution remains deferred"
+    }
+  ],
+  "fixAllowedInPhase2": false,
+  "schema": "research-reinvented-deferred-regressions-v1"
+}

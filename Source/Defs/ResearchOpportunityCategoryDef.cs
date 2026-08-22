@@ -1,6 +1,7 @@
 ﻿using PeteTimesSix.ResearchReinvented.Data;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace PeteTimesSix.ResearchReinvented.Defs
         public CategorySettingsFinal Settings { get 
             {
                 if (_settingsCached == null)
-                    _settingsCached = ResearchReinventedMod.Settings.GetCategorySettings(this);
+                    _settingsCached = ResearchRuntimeServices.Current.Settings.GetCategorySettings(this);
                 return _settingsCached; 
             } 
         }
@@ -31,7 +32,7 @@ namespace PeteTimesSix.ResearchReinvented.Defs
             {
                 if (_opportunityTypes == null)
                 {
-                    _opportunityTypes = DefDatabase<ResearchOpportunityTypeDef>.AllDefs.Where(t => t.GetAllCategories().Contains(this)).ToList();
+                    _opportunityTypes = ResearchRuntimeServices.Current.AllDefs<ResearchOpportunityTypeDef>().Where(t => t.GetAllCategories().Contains(this)).ToList();
 
                 }
                 return _opportunityTypes;

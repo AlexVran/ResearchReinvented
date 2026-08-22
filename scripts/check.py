@@ -8,8 +8,9 @@ from common import ROOT, run_quiet
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Phase 1 repository checks.")
+    parser = argparse.ArgumentParser(description="Run repository metadata, fixture, test, and build checks.")
     parser.add_argument("--skip-build", action="store_true")
+    parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()
 
     run_quiet([sys.executable, str(ROOT / "scripts" / "sync_metadata.py")])
@@ -22,10 +23,12 @@ def main() -> int:
         except ET.ParseError as error:
             raise RuntimeError(f"malformed XML: {path.relative_to(ROOT)}: {error}") from error
         parsed += 1
+    if not args.skip_tests:
+        run_quiet([sys.executable, str(ROOT / "scripts" / "test.py"), "Release"])
     if not args.skip_build:
         run_quiet([sys.executable, str(ROOT / "scripts" / "build.py"), "Debug"])
         run_quiet([sys.executable, str(ROOT / "scripts" / "build.py"), "Release"])
-    print(f"check ok: {parsed} XML files, RimWorld 1.6-only metadata")
+    print(f"check ok: {parsed} XML files, characterization tests, RimWorld 1.6-only metadata")
     return 0
 
 

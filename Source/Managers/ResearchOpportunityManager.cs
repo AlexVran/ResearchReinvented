@@ -1,6 +1,7 @@
 ﻿using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers;
 using PeteTimesSix.ResearchReinvented.Utilities;
 using RimWorld;
@@ -20,7 +21,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 {
     public class ResearchOpportunityManager : GameComponent
     {
-        public static ResearchOpportunityManager Instance => Current.Game.GetComponent<ResearchOpportunityManager>();
+        public static ResearchOpportunityManager Instance => ResearchRuntimeServices.Current.GetGameComponent<ResearchOpportunityManager>();
 
         public int changeTicker = -1;
         public bool clearedThisTick = false;
@@ -78,7 +79,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             if (regenerateWhenPossible)
             {
                 regenerateWhenPossible = false;
-                GenerateOpportunities(Find.ResearchManager.GetProject(), true);
+                GenerateOpportunities(ResearchRuntimeServices.Current.CurrentResearchProject, true);
             }
             CheckForRegeneration();
             //CancelMarkedPrototypes();
@@ -129,7 +130,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
             if (forceRegen)
             {
-                GenerateOpportunities(Find.ResearchManager.GetProject(), true);
+                GenerateOpportunities(ResearchRuntimeServices.Current.CurrentResearchProject, true);
             }
             else
             {
@@ -155,10 +156,10 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         public bool CheckForRegeneration() 
         {
-            if(Find.ResearchManager.GetProject() != _currentProject)
+            if(ResearchRuntimeServices.Current.CurrentResearchProject != _currentProject)
             {
-                PrototypeKeeper.Instance.CancelPrototypes(_currentProject, Find.ResearchManager.GetProject());
-                GenerateOpportunities(Find.ResearchManager.GetProject(), false);
+                PrototypeKeeper.Instance.CancelPrototypes(_currentProject, ResearchRuntimeServices.Current.CurrentResearchProject);
+                GenerateOpportunities(ResearchRuntimeServices.Current.CurrentResearchProject, false);
                 return true;
             }
             return false;
@@ -172,7 +173,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 return;
             popupCheckTick = Find.TickManager.TicksGame;
 
-            var currentProject = Find.ResearchManager.GetProject();
+            var currentProject = ResearchRuntimeServices.Current.CurrentResearchProject;
             if (currentProject == null)
                 return;
             if (!_categoryAvailability.ContainsKey(currentProject))
@@ -181,7 +182,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
             foreach (var category in CurrentProjectOpportunityCategories)
             {
-                var current = category.GetCurrentAvailability(Find.ResearchManager.GetProject());
+                var current = category.GetCurrentAvailability(ResearchRuntimeServices.Current.CurrentResearchProject);
                 if (!projectCategoryAvailability.ContainsKey(category))
                 {
                     projectCategoryAvailability[category] = current;
@@ -401,7 +402,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         public void FinishProject(ResearchProjectDef project, bool doCompletionDialog = false, Pawn researcher = null)
         {
-            Find.ResearchManager.FinishProject(project, doCompletionDialog, researcher);
+            ResearchRuntimeServices.Current.ResearchManager.FinishProject(project, doCompletionDialog, researcher);
         }
 
         public void DelayedRegeneration()

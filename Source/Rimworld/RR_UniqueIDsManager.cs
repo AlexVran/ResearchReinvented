@@ -9,7 +9,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 {
 	public class RR_UniqueIDsManager : GameComponent, IExposable
 	{
-		public static RR_UniqueIDsManager instance => Current.Game.GetComponent<RR_UniqueIDsManager>();
+		public static RR_UniqueIDsManager instance => ResearchRuntimeServices.Current.GetGameComponent<RR_UniqueIDsManager>();
 
 		// Token: 0x060060ED RID: 24813 RVA: 0x0021303C File Offset: 0x0021123C
 		public int GetNextResearchOpportunityID()

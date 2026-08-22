@@ -188,13 +188,13 @@ namespace PeteTimesSix.ResearchReinvented.Managers.OpportunityFactories
 
             {
                 {
-                    var playerFaction = Faction.OfPlayer;
+                    var playerFaction = ResearchRuntimeServices.Current.PlayerFaction;
                     var playerTechLevelModifier = OF_Factions.Modifiers.TryGetValue((playerFaction.def.techLevel, project.techLevel), 0f);
                     if(playerTechLevelModifier > 0f)
                         yield return new ResearchOpportunity(project, ResearchOpportunityTypeDefOf.Brainstorming, ResearchRelation.Direct, new ROComp_RequiresFaction(playerFaction), "player faction", importance: playerTechLevelModifier);
                 }
 
-                var factions = Find.FactionManager.GetFactions(/*not of player,*/ allowHidden: true, allowDefeated: true, allowNonHumanlike: false, minTechLevel: TechLevel.Neolithic, allowTemporary: false);
+                var factions = ResearchRuntimeServices.Current.ResearchFactions;
 
                 foreach (var faction in factions) 
                 {

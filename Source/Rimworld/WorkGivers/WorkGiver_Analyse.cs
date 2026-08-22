@@ -4,6 +4,7 @@ using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.ModCompat;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using PeteTimesSix.ResearchReinvented.Rimworld.JobDrivers;
 using PeteTimesSix.ResearchReinvented.Utilities;
 using RimWorld;
@@ -210,7 +211,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers
 
 			}
 
-			foreach (var map in Find.Maps) 
+			foreach (var map in ResearchRuntimeServices.Current.Maps)
 			{
 				{
                     var list = new List<Thing>();

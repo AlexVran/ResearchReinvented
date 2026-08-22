@@ -1,5 +1,6 @@
 ﻿using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Opportunities;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers.OpportunityFactories
             var setDirect = new HashSet<SpecialResearchOpportunityDef>();
             var setDescendant = new HashSet<SpecialResearchOpportunityDef>();
 
-            var projectMatches = DefDatabase<SpecialResearchOpportunityDef>.AllDefsListForReading.Where(s => s.project == project);
+            var projectMatches = ResearchRuntimeServices.Current.AllDefsListForReading<SpecialResearchOpportunityDef>().Where(s => s.project == project);
             setAncestor.AddRange(projectMatches.Where(m => m.IsForRelation(ResearchRelation.Ancestor)));
             setDirect.AddRange(projectMatches.Where(m => m.IsForRelation(ResearchRelation.Direct)));
             setDescendant.AddRange(projectMatches.Where(m => m.IsForRelation(ResearchRelation.Descendant)));
