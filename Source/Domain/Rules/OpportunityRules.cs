@@ -16,14 +16,22 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 
 	public sealed class OpportunityCandidate
 	{
-		public OpportunityCandidate(string ruleId, OpportunitySpec spec)
+		public OpportunityCandidate(string ruleId, OpportunitySpec spec, float evidenceConfidence = 1f, float staticFeasibility = 1f)
 		{
 			RuleId = string.IsNullOrWhiteSpace(ruleId) ? throw new ArgumentException("A candidate needs a rule id.", nameof(ruleId)) : ruleId;
 			Spec = spec ?? throw new ArgumentNullException(nameof(spec));
+			if (float.IsNaN(evidenceConfidence) || float.IsInfinity(evidenceConfidence) || evidenceConfidence < 0f || evidenceConfidence > 1f)
+				throw new ArgumentOutOfRangeException(nameof(evidenceConfidence), "Evidence confidence must be between zero and one.");
+			if (float.IsNaN(staticFeasibility) || float.IsInfinity(staticFeasibility) || staticFeasibility < 0f || staticFeasibility > 1f)
+				throw new ArgumentOutOfRangeException(nameof(staticFeasibility), "Static feasibility must be between zero and one.");
+			EvidenceConfidence = evidenceConfidence;
+			StaticFeasibility = staticFeasibility;
 		}
 
 		public string RuleId { get; }
 		public OpportunitySpec Spec { get; }
+		public float EvidenceConfidence { get; }
+		public float StaticFeasibility { get; }
 	}
 
 	public sealed class OpportunityRuleResult
@@ -144,7 +152,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 						var importance = item.Action == OpportunityOverrideAction.Reweight ? candidate.Spec.Importance * item.ImportanceMultiplier : candidate.Spec.Importance;
 						candidates[position] = new OpportunityCandidate("metadata." + item.Action.ToString().ToLowerInvariant(), Spec(project,
 							item.ReplacementOpportunityType ?? candidate.Spec.Type, candidate.Spec.Relation, replacementRequirement, importance,
-							candidate.Spec.Rare, candidate.Spec.Freebie, candidate.Spec.Reasons.Concat(new[] { new GenerationReason(GenerationReasonKind.ExplicitMetadata, EvidenceSource.ModExtension, item.SourceDef, item.Action.ToString()) }).ToArray()));
+							candidate.Spec.Rare, candidate.Spec.Freebie, candidate.Spec.Reasons.Concat(new[] { new GenerationReason(GenerationReasonKind.ExplicitMetadata, EvidenceSource.ModExtension, item.SourceDef, item.Action.ToString()) }).ToArray()),
+							candidate.EvidenceConfidence, candidate.StaticFeasibility);
 					}
 				}
 			}
@@ -178,7 +187,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 
 		protected OpportunityCandidate Candidate(OpportunityRuleContext context, string type, SubjectEvidence evidence, RequirementSpec requirement, GenerationReasonKind reasonKind) =>
 			new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of(type), evidence.Relation, requirement, 1f, false, true,
-				new GenerationReason(reasonKind, evidence.Source, evidence.SourceDef, evidence.Role.ToString())));
+				new GenerationReason(reasonKind, evidence.Source, evidence.SourceDef, evidence.Role.ToString())), evidence.Confidence);
 
 		protected static bool Strong(SubjectEvidence evidence) => evidence.Role == SubjectRole.AnalysisRequirement || evidence.Role == SubjectRole.Unlock || evidence.Role == SubjectRole.Product;
 		protected static bool Has<T>(T value, T flag) where T : struct => (Convert.ToInt32(value) & Convert.ToInt32(flag)) != 0;

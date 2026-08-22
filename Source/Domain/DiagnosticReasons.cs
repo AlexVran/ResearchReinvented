@@ -30,6 +30,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain
 		DuplicateSemanticKey,
 		CategoryLimit,
 		RuleLimit,
+		DiversityLimit,
 		UnsupportedLegacyRequirement
 	}
 
