@@ -128,7 +128,7 @@ unavailable outside the interactive Steam session; it omitted both the rewrite
 and collector and produced no comparison output. That process was stopped and
 the reduced run was rejected as heavy evidence. The two real Phase 0 saves from
 a 1,373-mod environment remain durable heavy-state fixtures. A genuine
-interactive heavy shadow timing run remains an explicit Phase 12/13 live
+interactive heavy shadow timing run remains an explicit Phase 12/14 live
 validation blocker and is not represented as complete here.
 
 The focused content run also reproduced the already documented Argonic Core

@@ -21,7 +21,9 @@ The completed mod should:
 - isolate fragile Harmony integrations so one failed feature does not disable
   the entire research system;
 - make generation rules testable without running a complete RimWorld game;
-- provide diagnostics explaining why an opportunity was generated or rejected.
+- provide diagnostics explaining why an opportunity was generated or rejected;
+- allow optional, data-driven and event-driven compatibility opportunities for
+  projects whose gameplay effect is not represented by standard unlock links.
 
 This is not initially a rebalance. Preserve current category budgets and
 research-point behavior until the new generator and state model are proven.
@@ -38,6 +40,10 @@ Unless deliberately changed during Phase 0, use these decisions:
 - Opportunity generation uses static loaded-Def facts. Current-map feasibility
   is a separate dynamic query.
 - Explicit mod metadata wins over inference.
+- Curated compatibility may add or replace generic opportunities only through
+  optional metadata or registered activity adapters. Missing DLCs/mods and
+  missing adapters must degrade to the generic opportunity families without a
+  hard dependency.
 - Prototyping can be disabled independently if its Harmony integration fails.
 - Repository modernization and gameplay changes are separate commits.
 
@@ -87,7 +93,8 @@ and prototype Harmony work in a single unreviewable change.
 - [ ] Phase 10: migrate UI, settings, and remaining lookups
 - [ ] Phase 11: replace or contain prototyping
 - [ ] Phase 12: add compatibility, malformed-Def, and performance coverage
-- [ ] Phase 13: perform live validation and prepare release readiness
+- [ ] Phase 13: add curated opportunities for generic-only research projects
+- [ ] Phase 14: perform final live validation and prepare release readiness
 
 ## Phase 0: scope and behavioral baseline
 
@@ -460,12 +467,22 @@ Route existing player actions through the new service.
    continuous progress handlers.
 6. Centralize progress modifiers, storyteller speed, XP, motes, caps, and
    project completion in one progress application path.
-7. Add handler-level feature flags and startup self-checks where Harmony targets
+7. Route availability and progress through a registry keyed by stable activity
+   handler IDs or opportunity types. Optional integrations must be able to add
+   a handler without changing the opportunity service or a central enum switch.
+8. Treat a missing, disabled, or failed optional handler as a bounded
+   unavailable reason while retaining safe generic opportunities for the
+   project.
+9. Add handler-level feature flags and startup self-checks where Harmony targets
    are optional or version-sensitive.
 
 ### Exit criteria
 
 - Each action advances exactly one intended semantic opportunity.
+- A synthetic optional activity handler can report progress through the service
+  without adding a new service method or modifying a central switch.
+- Unknown or unavailable handlers do not prevent the project, save, or generic
+  opportunities from loading.
 - No legacy static opportunity cache remains on migrated paths.
 - Changing projects invalidates jobs and queries safely.
 - Save/load during or after a job behaves correctly.
@@ -473,8 +490,9 @@ Route existing player actions through the new service.
 ### Resume prompt
 
 > Implement Phase 9 of `REWRITE_PLAN.md`: migrate analysis and event-driven
-> clinical/research handlers to the new opportunity service, with focused and
-> live evidence for each migrated action.
+> clinical/research handlers to the new opportunity service, introduce the
+> optional activity-handler registry, and provide focused and live evidence for
+> each migrated action.
 
 ## Phase 10: UI and settings
 
@@ -579,7 +597,70 @@ Prove that unusual content cannot explode generation cost or break the mod.
 > coverage, establish performance budgets, and fix only evidence-backed
 > compatibility problems.
 
-## Phase 13: live validation and release readiness
+## Phase 13: curated opportunities for generic-only research
+
+### Goal
+
+Add useful subject- or activity-specific opportunities only after the core
+generator, state, execution, UI, prototyping, and compatibility boundaries are
+stable. Generic fallback remains the safety net.
+
+### Work
+
+1. Use `docs/NON_BUILDING_RESEARCH_AUDIT.md` and its normalized CSV as the
+   initial review queue. Re-audit the active list if its package set has changed.
+2. Review the 48 `GenericFallbackOnly` and three `CustomResearchModOnly`
+   projects. Curate only relationships that are semantically justified and can
+   be tested; explicitly accept generic fallback for the remainder.
+3. Implement Odyssey `Fishing` as the first required case:
+   - prefer explicit XML/`DefModExtension` metadata if an existing subject and
+     action accurately represents the research;
+   - otherwise use an optional registered activity handler so successful
+     fishing can advance a stable opportunity;
+   - resolve the installed Odyssey Defs and event boundary at implementation
+     time rather than hard-coding guessed fish Def names or private methods;
+   - never award progress for merely starting or cancelling a fishing action.
+4. Use the existing special-opportunity and override formats for data-only
+   mappings. Add an activity adapter only when a real gameplay event is the
+   evidence and no existing handler represents it.
+5. Keep every DLC/mod integration optional and independently disableable. If
+   its package, target Def, or event hook is absent, the project retains generic
+   opportunities without startup errors.
+6. Keep curated candidates inside Phase 6 semantic-key deduplication, scoring,
+   category/rule limits, diversity selection, diagnostics, and unchanged
+   research-point budgets.
+7. Include optional Anomaly Study integration here if implemented: study only
+   items tied explicitly to the project, and never make Anomaly a hard
+   dependency.
+8. Add headless fixtures for data-only mappings, missing subjects/packages,
+   duplicate keys, deterministic output, and generic fallback. Add live tests
+   for event-driven progress, cancellation, duplicate-event protection,
+   project switching, and save/load.
+9. Document each accepted curated mapping and every project deliberately left
+   on generic fallback. Do not infer bespoke behavior from labels alone.
+
+### Exit criteria
+
+- Odyssey `Fishing` has a relevant, optional, tested opportunity and retains a
+  safe generic fallback when the integration is unavailable.
+- At least one data-only mapping and, if needed by Fishing, one event-driven
+  adapter prove that the application supports future curated opportunities
+  without modifying the opportunity service.
+- Missing DLCs/mods, missing Defs, failed optional hooks, and repeated events
+  remain bounded and do not corrupt progress or saves.
+- The audited generic-only/custom-only queue is either curated or explicitly
+  accepted with a documented reason, and total category/project budgets remain
+  unchanged.
+- No release or publishing operation has run.
+
+### Resume prompt
+
+> Implement Phase 13 of `REWRITE_PLAN.md`: use the active non-building research
+> audit to add optional, curated opportunities, beginning with Odyssey Fishing.
+> Preserve generic fallback and point budgets, prove data-only and event-driven
+> extension paths, and do not publish or release.
+
+## Phase 14: final live validation and release readiness
 
 ### Goal
 
@@ -594,13 +675,16 @@ Prove real player-visible behavior through its complete game transitions.
 4. Exercise theory, bench analysis, field analysis, medicine analysis, a drug
    trial, recipe prototype, construction prototype, and prototype surgery for
    their real durations.
-5. Test project switching during active jobs and prototypes.
-6. Save and reload before, during, and after representative opportunities.
-7. Repeat critical scenarios with the chosen heavy mod list.
-8. Inspect bounded logs, opportunity state, research progress, job state, and
+5. With Odyssey active, exercise the curated `Fishing` opportunity through its
+   complete success and cancellation paths. The minimal profile without Odyssey
+   must continue to load without the integration.
+6. Test project switching during active jobs and prototypes.
+7. Save and reload before, during, and after representative opportunities.
+8. Repeat critical scenarios with the chosen heavy mod list.
+9. Inspect bounded logs, opportunity state, research progress, job state, and
    deployed hashes.
-9. Update player-facing release notes for completed behavioral changes.
-10. Treat release and publishing as a separate explicitly requested workflow.
+10. Update player-facing release notes for completed behavioral changes.
+11. Treat release and publishing as a separate explicitly requested workflow.
 
 ### Exit criteria
 
@@ -613,7 +697,7 @@ Prove real player-visible behavior through its complete game transitions.
 
 ### Resume prompt
 
-> Perform Phase 13 of `REWRITE_PLAN.md`. Build, guarded-deploy, and prove the
+> Perform Phase 14 of `REWRITE_PLAN.md`. Build, guarded-deploy, and prove the
 > complete research workflows in minimal and heavy profiles. Do not publish or
 > release unless I explicitly request it.
 

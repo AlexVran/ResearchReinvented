@@ -108,8 +108,9 @@ and cross-reference resolution. It cannot discover arbitrary effects implemented
 only by C# patches, custom components, quest logic, or another mod-specific
 contract. A mod update or active-list change requires a new audit.
 
-Before the rewrite becomes authoritative, use the dataset to add focused
-compatibility fixtures for at least:
+Before final release readiness, use the dataset to add at least the following
+focused compatibility fixtures. Phase 13 owns final curated opportunities after
+the core migration and hardening phases are complete:
 
 1. Odyssey `Fishing` as a valid project with generic fallback only.
 2. A surgery-only project with its recipe and patient/medicine availability

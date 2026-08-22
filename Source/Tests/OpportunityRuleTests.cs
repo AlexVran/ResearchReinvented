@@ -204,6 +204,30 @@ public sealed class OpportunityRuleTests
 	}
 
 	[Fact]
+	public void SubjectlessExplicitSpecialCanRepresentAnEventDrivenActivity()
+	{
+		var activityType = OpportunityTypeIds.Of("CatchFish");
+		var special = new SpecialOpportunitySnapshot(
+			new DefIdentity("SpecialResearchOpportunityDef", "FishingActivity"),
+			Main,
+			activityType,
+			[]);
+		var source = new TestSource
+		{
+			Projects = [new(Main)],
+			SpecialOpportunities = [special]
+		};
+
+		var candidate = Assert.Single(
+			OpportunityRuleRegistry.CreateDefault().Generate(Index(source), Main).Candidates,
+			candidate => candidate.RuleId == "explicit-specials");
+
+		Assert.Equal(activityType, candidate.Spec.Type);
+		Assert.Equal(RequirementKind.None, candidate.Spec.Requirement.Kind);
+		Assert.Equal(Main, candidate.Spec.Project);
+	}
+
+	[Fact]
 	public void MetadataSuppressesInferenceAndForceTakesPrecedence()
 	{
 		var drug = Thing("Drug");
