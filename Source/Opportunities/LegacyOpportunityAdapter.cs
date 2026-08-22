@@ -196,13 +196,21 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
 
 		private static Faction? ResolveFaction(DefIdentity identity)
 		{
+			var services = ResearchRuntimeServices.Current;
+			if (identity == DefIdentity.Synthetic("player-faction"))
+				return services.PlayerFaction;
+			if (identity == DefIdentity.Synthetic("non-player-faction"))
+				return services.ResearchFactions
+					.Where(faction => faction?.def != null && faction != services.PlayerFaction)
+					.OrderBy(faction => faction.def.defName, StringComparer.Ordinal)
+					.FirstOrDefault();
 			if (!string.Equals(identity.DefType, nameof(FactionDef), StringComparison.Ordinal))
 				return null;
 
-			var services = ResearchRuntimeServices.Current;
 			return Enumerable.Repeat(services.PlayerFaction, 1)
 				.Concat(services.ResearchFactions)
 				.Where(faction => faction?.def != null)
+				.OrderBy(faction => faction.def.defName, StringComparer.Ordinal)
 				.FirstOrDefault(faction => string.Equals(faction.def.defName, identity.DefName, StringComparison.Ordinal));
 		}
 

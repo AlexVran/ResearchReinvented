@@ -4,6 +4,8 @@ using PeteTimesSix.ResearchReinvented.OpportunityComps;
 using PeteTimesSix.ResearchReinvented.Rimworld;
 using PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers;
 using PeteTimesSix.ResearchReinvented.Utilities;
+using PeteTimesSix.ResearchReinvented.Domain.State;
+using PeteTimesSix.ResearchReinvented.Domain;
 using RimWorld;
 using RimWorld.Planet;
 using System;
@@ -27,6 +29,12 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         public bool clearedThisTick = false;
 
         private List<ResearchOpportunity> _allGeneratedOpportunities = new List<ResearchOpportunity>();
+
+        private readonly OpportunityService _opportunityService = new OpportunityService();
+        internal IOpportunityService OpportunityService => _opportunityService;
+
+        [Unsaved(false)]
+        private OpportunitySaveRootData _opportunitySaveRoot;
 
 
         public IReadOnlyCollection<ResearchOpportunity> AllGeneratedOpportunities => _allGeneratedOpportunities.AsReadOnly();
@@ -102,52 +110,34 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         public void StartupChecks() 
         {
-            bool forceRegen = false; 
-            if (_projectsGenerated == null)
-            {
-                Log.Warning("RR: _projectsGenerated was missing!");
-                _projectsGenerated = new HashSet<ResearchProjectDef>();
-                forceRegen = true;
-            }
-            if (_allGeneratedOpportunities == null)
-            {
-                Log.Warning("RR: _allGeneratedOpportunities was missing!");
-                _allGeneratedOpportunities = new List<ResearchOpportunity>();
-                forceRegen = true;
-            }
-            if (_categoryAvailability == null)
-            {
-                Log.Warning("RR: _categoryAvailability was missing!");
-                _categoryAvailability = new Dictionary<ResearchProjectDef, Dictionary<ResearchOpportunityCategoryDef, OpportunityAvailability>>();
-                forceRegen = true;
-            }
-            if (_categoryStores == null)
-            {
-                Log.Warning("RR: _categoryStores was missing!");
-                _categoryStores = new List<ResearchOpportunityCategoryTotalsStore>();
-                forceRegen = true;
-            }
+            _projectsGenerated = _projectsGenerated ?? new HashSet<ResearchProjectDef>();
+            _allGeneratedOpportunities = _allGeneratedOpportunities ?? new List<ResearchOpportunity>();
+            _categoryAvailability = _categoryAvailability ?? new Dictionary<ResearchProjectDef, Dictionary<ResearchOpportunityCategoryDef, OpportunityAvailability>>();
+            _categoryStores = _categoryStores ?? new List<ResearchOpportunityCategoryTotalsStore>();
 
-            if (forceRegen)
+            // Schema v1 intentionally saves semantic progress rather than the
+            // generated specifications. Regeneration here is therefore a
+            // schema requirement, not an ordinary-load progress reset.
+            var saved = _opportunityService.CreateSnapshot(changeTicker);
+            if (!_opportunityService.IsReadOnly && saved.RequiresSpecificationRegeneration)
             {
-                GenerateOpportunities(ResearchRuntimeServices.Current.CurrentResearchProject, true);
+                foreach (var projectIdentity in saved.GeneratedProjects.OrderBy(identity => identity))
+                {
+                    var project = ResolveDef<ResearchProjectDef>(projectIdentity);
+                    if (project != null)
+                        GenerateOpportunities(project, false);
+                    else
+                        _opportunityService.RetainUnmatchedProject(projectIdentity, $"No loaded ResearchProjectDef named {projectIdentity.DefName} exists; its saved state remains orphaned.");
+                }
             }
+            var selected = ResearchRuntimeServices.Current.CurrentResearchProject;
+            if (selected != null && !_opportunityService.IsReadOnly)
+                GenerateOpportunities(selected, false);
             else
             {
-                // contributed by mahenry00
-                _allGeneratedOpportunities = _allGeneratedOpportunities
-                .Where(o =>
-                {
-                    if (!o.IsValid())
-                    {
-                        Log.Warning($"[RR]: Research opportunity invalid, loadID: {o?.loadID}, project: {o?.project?.label}");
-                        return false;
-                    }
-                    return true;
-                })
-                .ToList();
-
-                CheckForRegeneration();
+                _currentProject = selected;
+                if (!_opportunityService.IsReadOnly)
+                    _opportunityService.ActiveProject = null;
             }
 
             //clear caches. TODO: centralize caches in here instead?
@@ -375,11 +365,19 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             return _categoryStores.FirstOrDefault(cs => cs.project == project && cs.category == category);
         }
 
+        internal float GetAuthoritativeCategoryProgress(ResearchProjectDef project, ResearchOpportunityCategoryDef category)
+        {
+            return _opportunityService.CategoryProgress(
+                IdentityFor<ResearchProjectDef>(project),
+                IdentityFor<ResearchOpportunityCategoryDef>(category));
+        }
+
         public void PostFinishProject(ResearchProjectDef project)
         {
             _allGeneratedOpportunities.RemoveAll(o => o.project == project);
             _projectsGenerated.Remove(project);
             _categoryStores.RemoveAll(cs => cs.project == project);
+            _opportunityService.RemoveProject(IdentityFor<ResearchProjectDef>(project));
 
             if (_currentProject == project)
             {
@@ -396,6 +394,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             _currentOpportunityCategoriesCache?.Clear();
             _categoryStores?.Clear();
             _projectsGenerated?.Clear();
+            _opportunityService.Reset();
             clearedThisTick = true;
         }
 
@@ -421,6 +420,8 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             _currentProject = project;
             if (project == null)
                 return;
+            if (_opportunityService.IsReadOnly)
+                return;
 
             if (_projectsGenerated.Contains(project)) 
             {
@@ -432,6 +433,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 }
                 else
                 {
+					_opportunityService.ActiveProject = IdentityFor<ResearchProjectDef>(project);
 					if (ResearchReinvented_Debug.shadowComparisons && ResearchRuntimeServices.Current.CurrentResearchProject == project)
 						ResearchShadowComparisonSession.Compare(
 							project,
@@ -441,9 +443,22 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 }
             }
 
-            var results = ResearchOpportunityPrefabs.MakeOpportunitiesForProject(project);
-            var newOpportunities = results.opportunities;
-            var categoryStores = results.categoryStores;
+            var generated = OpportunitySpecificationPipeline.Generate(project, ResearchRuntimeServices.Current);
+            var projectIdentity = IdentityFor<ResearchProjectDef>(project);
+            _opportunityService.SetSpecifications(
+                projectIdentity,
+                generated.Specifications,
+                generated.Budgets);
+            _opportunityService.ActiveProject = projectIdentity;
+            foreach (var projection in generated.Projections)
+                projection.Legacy.BindAuthoritativeState(projection.Specification.Spec.Key);
+            var newOpportunities = generated.Projections.Select(projection => projection.Legacy).ToList();
+            var categoryStores = generated.Budgets.Select(budget => new ResearchOpportunityCategoryTotalsStore
+            {
+                project = project,
+                category = ResolveDef<ResearchOpportunityCategoryDef>(budget.Category),
+                researchPoints = budget.Budget,
+            }).Where(store => store.category != null).ToList();
             _categoryStores.RemoveAll(cs => cs.project == project);
             _categoryStores.AddRange(categoryStores);
 
@@ -453,6 +468,12 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
             _allGeneratedOpportunities.AddRange(newOpportunities.Where(o => o.IsValid()));
             _projectsGenerated.Add(project);
+
+            foreach (var rejection in generated.Rejections.Take(32))
+                Log.Warning($"RR state: specification projection rejected {rejection.Kind}: {rejection.Detail}");
+            var suppressed = generated.SuppressedDiagnostics + Math.Max(0, generated.Rejections.Count - 32);
+            if (suppressed > 0)
+                Log.Warning($"RR state: suppressed {suppressed} additional generation/projection diagnostics for {project.defName}.");
 
 			if (ResearchReinvented_Debug.shadowComparisons && ResearchRuntimeServices.Current.CurrentResearchProject == project)
 				ResearchShadowComparisonSession.Compare(project, newOpportunities.Where(o => o.IsValid()).ToArray(), categoryStores);
@@ -472,7 +493,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 _categoryAvailability[project] = new Dictionary<ResearchOpportunityCategoryDef, OpportunityAvailability>();
             }
             var projectCategoryAvailability = _categoryAvailability[project];
-            foreach (var category in CurrentProjectOpportunityCategories)
+            foreach (var category in newOpportunities.Select(opportunity => opportunity.def.GetCategory(opportunity.relation)).Where(category => category != null).Distinct())
             {
                 projectCategoryAvailability[category] = category.GetCurrentAvailability(project);
             }
@@ -494,20 +515,83 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         public override void ExposeData()
         {
             base.ExposeData();
-            if(Scribe.mode == LoadSaveMode.Saving) 
-            {
-                _allGeneratedOpportunities = _allGeneratedOpportunities.Where(o => o.IsValid()).ToList();
-            }
             Scribe_Values.Look(ref changeTicker, "changeTicker", -1);
-
-            Scribe_Collections.Look(ref _allGeneratedOpportunities, "_allGeneratedOpportunities", LookMode.Deep);
-            Scribe_Collections.Look(ref _projectsGenerated, "_allProjectsWithGeneratedOpportunities", LookMode.Def);
-            Scribe_Defs.Look(ref _currentProject, "currentProject");
-            Scribe_Collections.Look(ref _categoryStores, "_categoryStores", LookMode.Deep);
-            if(Scribe.mode == LoadSaveMode.PostLoadInit)
+            if (Scribe.mode == LoadSaveMode.Saving)
             {
-                _allGeneratedOpportunities = _allGeneratedOpportunities.Where(o => o.IsValid()).ToList();
+                if (_opportunityService.IsReadOnly)
+                    throw new InvalidOperationException("Research Reinvented cannot overwrite opportunity state written by a newer schema. Load this save with the newer mod version before saving again.");
+                _opportunitySaveRoot = new OpportunitySaveRootData(_opportunityService.CreateSnapshot(changeTicker));
             }
+            Scribe_Deep.Look(ref _opportunitySaveRoot, "opportunityState");
+
+            // Old field names are read only when the new root is absent. Once
+            // migration succeeds, every subsequent save writes only schema v1.
+            if (_opportunitySaveRoot == null && Scribe.mode != LoadSaveMode.Saving)
+            {
+                Scribe_Collections.Look(ref _allGeneratedOpportunities, "_allGeneratedOpportunities", LookMode.Deep);
+                Scribe_Collections.Look(ref _projectsGenerated, "_allProjectsWithGeneratedOpportunities", LookMode.Def);
+                Scribe_Defs.Look(ref _currentProject, "currentProject");
+                Scribe_Collections.Look(ref _categoryStores, "_categoryStores", LookMode.Deep);
+            }
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                if (_opportunitySaveRoot != null)
+                    _opportunityService.Restore(_opportunitySaveRoot.ToDomain());
+                else
+                    MigrateLegacyState();
+                _allGeneratedOpportunities = new List<ResearchOpportunity>();
+                _projectsGenerated = new HashSet<ResearchProjectDef>();
+                _categoryStores = new List<ResearchOpportunityCategoryTotalsStore>();
+                _currentProject = null;
+            }
+        }
+
+        private void MigrateLegacyState()
+        {
+            var state = (_allGeneratedOpportunities ?? new List<ResearchOpportunity>()).Select(opportunity =>
+            {
+                if (opportunity?.legacyMigrationCapture != null)
+                    return new LegacyOpportunityMigrationDto(opportunity.legacyMigrationCapture.ToSavedState(opportunity), opportunity.loadID);
+                try
+                {
+                    var spec = LegacyOpportunityAdapter.ToSpec(opportunity);
+                    var category = IdentityFor<ResearchOpportunityCategoryDef>(opportunity.def.GetCategory(opportunity.relation));
+                    return new LegacyOpportunityMigrationDto(new SavedOpportunityState(
+                        spec.Key.Value, spec.Project, spec.Type, spec.Relation, spec.Requirement.Kind,
+                        spec.Requirement.CanonicalSubject, category, opportunity.LegacyStoredProgress,
+                        opportunity.StoredMaximumProgress, PreservedOpportunityStateKind.Ordinary,
+                        spec.Requirement.AlternateSubjects, opportunity.loadID.ToString()), opportunity.loadID);
+                }
+                catch
+                {
+                    return new LegacyOpportunityMigrationDto(new SavedOpportunityState(
+                        null, null, null, ResearchRelation.Direct, RequirementKind.None,
+                        null, null,
+                        opportunity?.LegacyStoredProgress ?? 0f,
+                        opportunity?.StoredMaximumProgress ?? 0f,
+                        PreservedOpportunityStateKind.Ordinary,
+                        sourceId: opportunity?.loadID.ToString()), opportunity?.loadID);
+                }
+            }).ToArray();
+            var budgets = (_categoryStores ?? new List<ResearchOpportunityCategoryTotalsStore>())
+                .Where(store => store?.project != null && store.category != null && !float.IsNaN(store.researchPoints) && !float.IsInfinity(store.researchPoints) && store.researchPoints >= 0f)
+                .Select(store => new SavedCategoryBudget(IdentityFor<ResearchProjectDef>(store.project), IdentityFor<ResearchOpportunityCategoryDef>(store.category), store.researchPoints))
+                .ToArray();
+            var projects = state.Select(item => item.State.Project).Where(item => item != null)
+                .Concat((_projectsGenerated ?? new HashSet<ResearchProjectDef>()).Where(project => project != null).Select(IdentityFor<ResearchProjectDef>))
+                .Distinct().ToArray();
+            var active = _currentProject == null ? state.Select(item => item.State.Project).FirstOrDefault(item => item != null) : IdentityFor<ResearchProjectDef>(_currentProject);
+            _opportunityService.RestoreLegacy(state!, budgets, active, projects!, changeTicker);
+        }
+
+        private static DefIdentity IdentityFor<TDef>(TDef definition) where TDef : Def => new DefIdentity(typeof(TDef).Name, definition.defName);
+
+        private static TDef ResolveDef<TDef>(DefIdentity identity) where TDef : Def
+        {
+            if (identity == null || !string.Equals(identity.DefType, typeof(TDef).Name, StringComparison.Ordinal))
+                return null;
+            return ResearchRuntimeServices.Current.AllDefsListForReading<TDef>()
+                .FirstOrDefault(definition => string.Equals(definition.defName, identity.DefName, StringComparison.Ordinal));
         }
     }
 }

@@ -43,6 +43,21 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             var factory = new MasterFactory();
             projectOpportunities.AddRange(factory.GenerateOpportunities(project));
 
+            return AllocateProgress(project, projectOpportunities);
+        }
+
+        /// <summary>
+        /// Keeps the legacy category-budget and per-opportunity allocation
+        /// formulas available to Phase 8 projections. Generation and allocation
+        /// are intentionally separate: the new specification pipeline owns the
+        /// former while current execution/UI objects retain the latter.
+        /// </summary>
+        internal static (List<ResearchOpportunity> opportunities, List<ResearchOpportunityCategoryTotalsStore> categoryStores) AllocateProgress(
+            ResearchProjectDef project,
+            IEnumerable<ResearchOpportunity> opportunities)
+        {
+            var projectOpportunities = opportunities.Where(opportunity => opportunity != null).ToList();
+
             HashSet<ResearchOpportunityCategoryDef> categories = new HashSet<ResearchOpportunityCategoryDef>();
             foreach (var opportunity in projectOpportunities)
             {

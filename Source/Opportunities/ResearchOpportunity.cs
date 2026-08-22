@@ -4,6 +4,7 @@ using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
 using PeteTimesSix.ResearchReinvented.OpportunityJobPickers;
 using PeteTimesSix.ResearchReinvented.Rimworld;
+using PeteTimesSix.ResearchReinvented.Domain;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,12 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
         private bool isForcedRare;
         private bool isForcedFreebie;
 
+        [Unsaved(false)]
+        private OpportunityKey authoritativeKey;
+
+        [Unsaved(false)]
+        internal LegacyOpportunityMigrationCapture legacyMigrationCapture;
+
         public ResearchRelation relation = ResearchRelation.Direct;
         public float importance;
 
@@ -59,7 +66,10 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
         public int loadID = -1;
 
 
-        public float Progress => currentProgress;
+        public float Progress => authoritativeKey != null
+            ? ResearchOpportunityManager.Instance.OpportunityService.ProgressFor(authoritativeKey)
+            : currentProgress;
+        internal float StoredMaximumProgress => maximumProgress;
         public float MaximumProgress
         {
             get
@@ -68,7 +78,9 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
                 if (category.maxAsRemaining && category.Settings.infiniteOverflow)
                     return project.baseCost - project.ProgressReal + Progress;
                 else
-                    return maximumProgress;
+                    return authoritativeKey != null
+                        ? ResearchOpportunityManager.Instance.OpportunityService.MaximumFor(authoritativeKey)
+                        : maximumProgress;
             }
         }
 
@@ -124,11 +136,18 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
             maximumProgress = maxProgress; 
         }
 
+        internal void BindAuthoritativeState(OpportunityKey key)
+        {
+            authoritativeKey = key ?? throw new ArgumentNullException(nameof(key));
+        }
+
+        internal float LegacyStoredProgress => currentProgress;
+
         public TaggedString ShortDesc 
         {
             get 
             {
-                return $"[{project}] - [{def.GetCategory(relation).label}] - [{def.label}]: {requirement.ShortDesc} ({currentProgress} / {maximumProgress})";
+                return $"[{project}] - [{def.GetCategory(relation).label}] - [{def.label}]: {requirement.ShortDesc} ({Progress} / {MaximumProgress})";
             }
         }
 
@@ -144,6 +163,8 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
 
         public void ExposeData()
         {
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+                legacyMigrationCapture = LegacyOpportunityMigrationCapture.CaptureCurrentNode();
             Scribe_Defs.Look(ref project, "project");
             Scribe_Defs.Look(ref def, "def");
 
@@ -173,14 +194,17 @@ namespace PeteTimesSix.ResearchReinvented.Opportunities
                 amount *= 500f;
             }
 
-            if (currentProgress + amount >= MaximumProgress)
-                amount = MaximumProgress - currentProgress;
+            if (Progress + amount >= MaximumProgress)
+                amount = MaximumProgress - Progress;
             if (moteAmount.HasValue)
             {
-                if (currentProgress + moteAmount >= MaximumProgress)
-                    moteAmount = MaximumProgress - currentProgress;
+                if (Progress + moteAmount >= MaximumProgress)
+                    moteAmount = MaximumProgress - Progress;
             }
-            currentProgress += amount;
+            if (authoritativeKey != null)
+                amount = ResearchOpportunityManager.Instance.OpportunityService.ApplyProgress(authoritativeKey, amount);
+            else
+                currentProgress += amount;
             if (researcher != null)
             {
                 researcher.records.AddTo(RecordDefOf.ResearchPointsResearched, amount);

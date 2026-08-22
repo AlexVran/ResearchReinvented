@@ -88,7 +88,7 @@ and prototype Harmony work in a single unreviewable change.
 - [x] Phase 5: implement opportunity rules
 - [x] Phase 6: implement normalization, scoring, selection, and diagnostics
 - [x] Phase 7: run the new generator in shadow mode
-- [ ] Phase 8: introduce the opportunity service and versioned save state
+- [x] Phase 8: introduce the opportunity service and versioned save state
 - [ ] Phase 9: migrate analysis and clinical execution
 - [ ] Phase 10: migrate UI, settings, and remaining lookups
 - [ ] Phase 11: replace or contain prototyping
