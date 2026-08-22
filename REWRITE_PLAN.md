@@ -78,7 +78,7 @@ and prototype Harmony work in a single unreviewable change.
 - [x] Phase 1: modernize the repository and build without changing gameplay
 - [x] Phase 2: add characterization fixtures and test seams
 - [x] Phase 3: introduce the new domain contracts
-- [ ] Phase 4: build the immutable Def index and evidence graph
+- [x] Phase 4: build the immutable Def index and evidence graph
 - [ ] Phase 5: implement opportunity rules
 - [ ] Phase 6: implement normalization, scoring, selection, and diagnostics
 - [ ] Phase 7: run the new generator in shadow mode

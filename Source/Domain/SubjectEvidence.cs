@@ -28,6 +28,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain
 	{
 		ProjectDefinition,
 		Prerequisite,
+		HiddenPrerequisite,
 		RequiredAnalysis,
 		RecipeDefinition,
 		ThingDefinition,
