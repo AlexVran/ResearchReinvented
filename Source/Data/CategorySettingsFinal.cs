@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PeteTimesSix.ResearchReinvented.Domain.Settings;
 
 namespace PeteTimesSix.ResearchReinvented.Data
 {
@@ -10,16 +11,10 @@ namespace PeteTimesSix.ResearchReinvented.Data
     {
         public void Update(CategorySettingsPreset preset, CategorySettingsChanges changes)
         {
-            enabled = changes.enabled.HasValue ? changes.enabled.Value : preset.enabled;
-
-            importanceStatic = changes.importanceStatic.HasValue ? changes.importanceStatic.Value : preset.importanceStatic;
-            importanceMultiplier = changes.importanceMultiplier.HasValue ? changes.importanceMultiplier.Value : preset.importanceMultiplier;
-            importanceMultiplierCounted = changes.importanceMultiplierCounted.HasValue ? changes.importanceMultiplierCounted.Value : preset.importanceMultiplierCounted;
-            infiniteOverflow = changes.infiniteOverflow.HasValue ? changes.infiniteOverflow.Value : preset.infiniteOverflow;
-            targetIterations = changes.targetIterations.HasValue ? changes.targetIterations.Value : preset.targetIterations;
-            researchSpeedMultiplier = changes.researchSpeedMultiplier.HasValue ? changes.researchSpeedMultiplier.Value : preset.researchSpeedMultiplier;
-
-            availableAtOverallProgress = changes.availableAtOverallProgress.HasValue ? changes.availableAtOverallProgress.Value : preset.availableAtOverallProgress;
+            var resolved = CategorySettingsResolver.Resolve(
+                CategorySettingsDomainAdapter.ToValue(preset),
+                CategorySettingsDomainAdapter.ToOverride(changes));
+            CategorySettingsDomainAdapter.Apply(resolved, this);
         }
     }
 }

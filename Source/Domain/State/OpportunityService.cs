@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using PeteTimesSix.ResearchReinvented.Domain.Presentation;
 
 namespace PeteTimesSix.ResearchReinvented.Domain.State
 {
@@ -15,6 +16,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.State
 		IReadOnlyList<OpportunityReconciliationDiagnostic> Diagnostics { get; }
 		IReadOnlyList<SavedOpportunityState> Orphans { get; }
 		IReadOnlyList<OpportunitySpecificationState> SpecificationsFor(DefIdentity project);
+		OpportunityProjectReadModel ReadModelFor(DefIdentity project);
 		void Restore(OpportunitySaveSnapshot snapshot);
 		void RestoreLegacy(IEnumerable<LegacyOpportunityMigrationDto> state, IEnumerable<SavedCategoryBudget> budgets, DefIdentity? activeProject, IEnumerable<DefIdentity>? generatedProjects, int settingsChangeTicker);
 		void SetSpecifications(DefIdentity project, IEnumerable<OpportunitySpecificationState> specifications, IEnumerable<SavedCategoryBudget> budgets, OpportunityReconciliationAliases? aliases = null);
@@ -53,6 +55,33 @@ namespace PeteTimesSix.ResearchReinvented.Domain.State
 
 		public IReadOnlyList<OpportunitySpecificationState> SpecificationsFor(DefIdentity project) =>
 			specifications.TryGetValue(project, out var value) ? value : Array.Empty<OpportunitySpecificationState>();
+
+		public OpportunityProjectReadModel ReadModelFor(DefIdentity project)
+		{
+			if (project == null) throw new ArgumentNullException(nameof(project));
+			var opportunityModels = SpecificationsFor(project)
+				.Select(item => new OpportunityReadModel(item, ProgressFor(item.Spec.Key)))
+				.ToArray();
+			var categoryIds = opportunityModels.Select(item => item.Category)
+				.Concat(categoryBudgets.Values.Where(item => item.Project == project).Select(item => item.Category))
+				.Concat(orphans.Where(item => item.Project == project && item.Category != null).Select(item => item.Category!))
+				.Distinct()
+				.OrderBy(item => item)
+				.ToArray();
+			var categories = categoryIds.Select(category =>
+			{
+				var hasBudget = categoryBudgets.TryGetValue(CategoryKey(project, category), out var savedBudget);
+				var budget = hasBudget ? savedBudget!.Budget : 0f;
+				return new OpportunityCategoryReadModel(
+					project,
+					category,
+					CategoryProgress(project, category),
+					budget,
+					hasBudget,
+					opportunityModels.Where(item => item.Category == category));
+			});
+			return new OpportunityProjectReadModel(project, categories);
+		}
 
 		public void Restore(OpportunitySaveSnapshot snapshot)
 		{
@@ -124,6 +153,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.State
 
 			specifications[project] = Array.AsReadOnly(ordered);
 			foreach (var item in ordered) specificationByKey[item.Spec.Key] = item;
+			foreach (var key in categoryBudgets.Where(item => item.Value.Project == project).Select(item => item.Key).ToArray())
+				categoryBudgets.Remove(key);
 			foreach (var budget in budgets ?? Array.Empty<SavedCategoryBudget>())
 			{
 				if (budget.Project == project) categoryBudgets[CategoryKey(project, budget.Category)] = budget;

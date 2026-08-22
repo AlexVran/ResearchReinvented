@@ -6,6 +6,7 @@ using PeteTimesSix.ResearchReinvented.Rimworld.WorkGivers;
 using PeteTimesSix.ResearchReinvented.Utilities;
 using PeteTimesSix.ResearchReinvented.Domain.State;
 using PeteTimesSix.ResearchReinvented.Domain;
+using PeteTimesSix.ResearchReinvented.Rimworld.UI;
 using RimWorld;
 using RimWorld.Planet;
 using System;
@@ -35,6 +36,8 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         private readonly ResearchExecutionService _execution;
         public ResearchExecutionService Execution => _execution;
+
+        internal OpportunityProjectPresentationViewModel CreatePresentationViewModel() => OpportunityPresentationFactory.Create(this);
 
         [Unsaved(false)]
         private OpportunitySaveRootData _opportunitySaveRoot;
@@ -75,8 +78,6 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
         private List<ResearchOpportunityCategoryTotalsStore> _categoryStores = new List<ResearchOpportunityCategoryTotalsStore>();
 
-        private bool regenerateWhenPossible = false;
-
         private Dictionary<ResearchProjectDef, Dictionary<ResearchOpportunityCategoryDef, OpportunityAvailability>> _categoryAvailability = new Dictionary<ResearchProjectDef, Dictionary<ResearchOpportunityCategoryDef, OpportunityAvailability>>();
 
         public ResearchOpportunityManager(Game game)
@@ -88,11 +89,6 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         {
             base.GameComponentTick();
             clearedThisTick = false;
-            if (regenerateWhenPossible)
-            {
-                regenerateWhenPossible = false;
-                GenerateOpportunities(ResearchRuntimeServices.Current.CurrentResearchProject, true);
-            }
             CheckForRegeneration();
             //CancelMarkedPrototypes();
         }
@@ -411,14 +407,44 @@ namespace PeteTimesSix.ResearchReinvented.Managers
             ResearchRuntimeServices.Current.ResearchManager.FinishProject(project, doCompletionDialog, researcher);
         }
 
-        public void DelayedRegeneration()
-        {
-            this.regenerateWhenPossible = true;
-        }
-
         public void GenerateOpportunities(ResearchProjectDef project, bool forceRegen)
         {
             GenerateOpportunities(project, forceRegen, activate: true);
+        }
+
+        public void ReconcileSettingsChange(int settingsChangeTicker)
+        {
+            if (_opportunityService.IsReadOnly)
+                return;
+            var selected = ResearchRuntimeServices.Current.CurrentResearchProject;
+            var projects = _projectsGenerated.Where(project => project != null && project != selected)
+                .OrderBy(project => project.defName, StringComparer.Ordinal)
+                .ToArray();
+            CacheClearer.ClearCaches();
+            foreach (var project in projects)
+                GenerateOpportunities(project, true, activate: false);
+            if (selected != null)
+                GenerateOpportunities(selected, true, activate: true);
+            else
+            {
+                _currentProject = null;
+                _opportunityService.ActiveProject = null;
+            }
+            changeTicker = settingsChangeTicker;
+            clearedThisTick = false;
+            _categoryAvailability.Clear();
+            _execution.InvalidateMapIndexes();
+        }
+
+        internal bool DebugFinishOpportunity(OpportunityKey key)
+        {
+            var opportunity = _allGeneratedOpportunities.FirstOrDefault(item => item.AuthoritativeKey == key);
+            return opportunity != null && _execution.FinishImmediately(opportunity);
+        }
+
+        internal void DebugListAlternates(OpportunityKey key)
+        {
+            _allGeneratedOpportunities.FirstOrDefault(item => item.AuthoritativeKey == key)?.requirement?.ListAlts();
         }
 
         internal void EnsureGeneratedForExecution(ResearchProjectDef project)

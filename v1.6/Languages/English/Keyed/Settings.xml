@@ -10,9 +10,9 @@
 	<RR_setting_tab_CATEGORY_CONFIG_tooltip>Configure individual research opportunity categories.</RR_setting_tab_CATEGORY_CONFIG_tooltip>
 	<RR_setting_tab_MOD_INTEGRATIONS_tooltip>Display and configure optional integrations with other mods.</RR_setting_tab_MOD_INTEGRATIONS_tooltip>
 
-	<RR_setting_fixupButton>Changes in settings. Regenerate?</RR_setting_fixupButton>
-	<RR_setting_fixupConfirm>Clear all currently generated opportunities? This will NOT reset research progress!</RR_setting_fixupConfirm>
-	<RR_setting_changeWarning>Changes made here will not correctly apply to research projects already started (including progress gained from reading schematics).\nIf you are currently in game you will be prompted for applying a fix after closing this window, otherwise a fix button will be available in the in-game menu after loading a save with older settings.\n(The fix is not applied automatically in case you want to avoid accidentally double-dipping).</RR_setting_changeWarning>
+	<RR_setting_fixupButton>Changes in settings. Reconcile opportunities?</RR_setting_fixupButton>
+	<RR_setting_fixupConfirm>Regenerate opportunities using the new settings? Progress for matching opportunities will be preserved, and unmatched progress will remain safely retained.</RR_setting_fixupConfirm>
+	<RR_setting_changeWarning>Category changes are applied to started research projects after you confirm reconciliation. Existing opportunities keep their progress by stable identity, and progress from removed opportunities remains safely retained.</RR_setting_changeWarning>
 
 	<RR_setting_showProgressMotes>Show progress motes</RR_setting_showProgressMotes>
 	<RR_setting_defaultCompactMode_showProgressMotes_tooltip>When enabled, motes (floating messages) will briefly appear above pawns that have made significant research progress.</RR_setting_defaultCompactMode_showProgressMotes_tooltip>

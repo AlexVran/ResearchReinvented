@@ -1,4 +1,5 @@
 ﻿using PeteTimesSix.ResearchReinvented.Defs;
+using PeteTimesSix.ResearchReinvented.Domain;
 using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
@@ -18,7 +19,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
 {
     class MainTabWindow_ResearchReinvented : MainTabWindow
     {
-        public HashSet<ResearchOpportunityCategoryDef> collapsedCategories = new HashSet<ResearchOpportunityCategoryDef>();
+        public HashSet<DefIdentity> collapsedCategories = new HashSet<DefIdentity>();
         //public static bool compactMode = false;
 
         private static bool? compactMode = null;
@@ -79,8 +80,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
 
             var fullRect = inRect;
             //Rect fullRect = new Rect(0f, TITLEBAR_HEIGHT, this.size.x, this.size.y - TITLEBAR_HEIGHT).Rounded();
-            IReadOnlyCollection<ResearchOpportunity> opportunities = ResearchOpportunityManager.Instance.CurrentProjectOpportunities;
-            IReadOnlyCollection<ResearchOpportunityCategoryDef> opportunityCategories = ResearchOpportunityManager.Instance.CurrentProjectOpportunityCategories;
+            var presentation = ResearchOpportunityManager.Instance.CreatePresentationViewModel();
 
             var titlebarRect = fullRect.TopPartPixels(TITLEBAR_HEIGHT);
             var footerRect = fullRect.BottomPartPixels(FOOTER_HEIGHT);
@@ -94,7 +94,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             titlebarCentralRect.x += CLOSEBUTTON_BOUNDING_BOX_SIZE;
 
             Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(titlebarCentralRect, Find.ResearchManager.GetProject() != null ? Find.ResearchManager.GetProject().LabelCap.ToString() : RR_no_project_selected);
+            Widgets.Label(titlebarCentralRect, presentation.Project != null ? presentation.Project.LabelCap.ToString() : RR_no_project_selected);
             if (ResearchOpportunityManager.Instance.clearedThisTick)
             {
                 titlebarCentralRect.y += titlebarCentralRect.height;
@@ -110,7 +110,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 if(collapsedCategories.Any())
                     collapsedCategories.Clear();
                 else
-                    collapsedCategories.AddRange(DefDatabase<ResearchOpportunityCategoryDef>.AllDefsListForReading);
+                    collapsedCategories.AddRange(presentation.Categories.Select(category => category.Key));
             }
             if (Widgets.ButtonText(titlebarCentralRect.RightPartPixels(COMPACTMODE_BUTTON_WIDTH), CompactMode ? RR_disable_compact_mode : RR_enable_compact_mode))
             {
@@ -118,7 +118,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             }
 
             Widgets.DrawLineHorizontal(titlebarRect.x, titlebarRect.y + titlebarRect.height, titlebarRect.width);
-            DrawOpportunitiesList(contentRect, ResearchOpportunityManager.Instance.CurrentProject, opportunityCategories, opportunities);
+            DrawOpportunitiesList(contentRect, presentation);
 
             if (DebugSettings.ShowDevGizmos) 
             {
@@ -132,9 +132,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
 				}
 				if (GUI.Button(but2rect, "DEBUG:Regen"))
 				{
-                    ResearchOpportunityManager.Instance.ResetAllProgress();
-                    CacheClearer.ClearCaches();
-                    ResearchOpportunityManager.Instance.GenerateOpportunities(Find.ResearchManager.GetProject(), true);
+                    ResearchOpportunityManager.Instance.ReconcileSettingsChange(ResearchReinventedMod.Settings.changeTicker);
 				}
 			}
             else
@@ -154,7 +152,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             Text.Anchor = cachedAnchor;
         }
 
-        private void DrawOpportunitiesList(Rect listRect, ResearchProjectDef project, IReadOnlyCollection<ResearchOpportunityCategoryDef> opportunityCategories, IReadOnlyCollection<ResearchOpportunity> opportunities)
+        private void DrawOpportunitiesList(Rect listRect, OpportunityProjectPresentationViewModel presentation)
         {
             Rect internalRect = new Rect(listRect.x, listRect.y, listRect.width, listRect.height).Rounded();
 
@@ -168,34 +166,18 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
 
             float heightTotal = 0f;
 
-            foreach (var opportunityCategory in opportunityCategories.Where(c => c.Settings.enabled).OrderByDescending(c => c.priority))
+            foreach (var opportunityCategory in presentation.Categories.Where(category => category.Enabled))
             {
-                var matchingOpportunitites = opportunities.Where(o => o.def.GetCategory(o.relation) == opportunityCategory);
-                if (matchingOpportunitites.Any())
-                {
-                    DrawOpportunityCategory(listRect, internalRect, hasScrollbar, ref heightTotal, project, opportunityCategory, matchingOpportunitites);
-                }
+                DrawOpportunityCategory(listRect, internalRect, hasScrollbar, ref heightTotal, opportunityCategory);
             }
             innerRectSizeCache = heightTotal;
 
             Widgets.EndScrollView();
         }
 
-        private void DrawOpportunityCategory(Rect wrapperRect, Rect internalRect, bool hasScrollbar, ref float heightTotal, ResearchProjectDef project, ResearchOpportunityCategoryDef category, IEnumerable<ResearchOpportunity> matchingOpportunitites)
+        private void DrawOpportunityCategory(Rect wrapperRect, Rect internalRect, bool hasScrollbar, ref float heightTotal, OpportunityCategoryPresentationViewModel category)
         {
-            var totalsStore = ResearchOpportunityManager.Instance.GetTotalsStore(project, category);
-
             Rect headerRect = new Rect(internalRect.x, internalRect.y + heightTotal, internalRect.width, HEADER_ROW_HEIGHT).Rounded();
-
-            if (totalsStore == null)
-            {
-                ResearchOpportunityManager.Instance.DelayedRegeneration();
-                GUI.color = Color.red;
-                Widgets.Label(headerRect, $"Category {category.LabelCap} totalsStore missing!");
-                GUI.color = Color.white;
-                heightTotal += headerRect.height + ROW_GAP;
-                return;
-            }
 
             //Rect textRectStart = new Rect(internalRect.x + ICON_SIZE + ICON_GAP, internalRect.y + heightTotal, internalRect.width - (ICON_SIZE + ICON_GAP), ROW_HEIGHT).Rounded();
             //Rect iconRectStart = new Rect(internalRect.x, internalRect.y + heightTotal, ICON_SIZE, ICON_SIZE).Rounded();
@@ -205,7 +187,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             //progressRect.width *= categoryProgress;
             //Widgets.DrawBoxSolid(progressRect, progressColor);
 
-            bool collapsed = collapsedCategories.Contains(category);
+            bool collapsed = collapsedCategories.Contains(category.Key);
 
 
             var headerTextRect = headerRect;
@@ -214,31 +196,31 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 headerTextRect.width += SCROLLBAR_WIDTH; //recenter headers
             }
             Text.Anchor = TextAnchor.LowerCenter;
-            GUI.color = category.color;
-            Widgets.Label(headerTextRect, category.LabelCap);
+            GUI.color = category.Color;
+            Widgets.Label(headerTextRect, category.Label);
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.LowerRight;
-            if (!category.Settings.infiniteOverflow)
+            if (!category.InfiniteOverflow)
             {
                 //{Progress} "X"
-                Widgets_Extra.LabelFitHeightAware(headerRect, $"{Math.Round(category.GetCurrentTotal(project), 0)} / {Math.Round(totalsStore.researchPoints, 0)}");
+                Widgets_Extra.LabelFitHeightAware(headerRect, $"{Math.Round(category.State.Progress, 0)} / {Math.Round(category.State.Budget, 0)}");
             }
             else
             {
                 //{Progress} "X / Y"
-                Widgets_Extra.LabelFitHeightAware(headerRect, $"{Math.Round(category.GetCurrentTotal(project), 0)}");
+                Widgets_Extra.LabelFitHeightAware(headerRect, $"{Math.Round(category.State.Progress, 0)}");
             }
 
             Text.Anchor = TextAnchor.MiddleLeft;
             if(Widgets.ButtonText(headerRect.LeftPartPixels(COLLAPSE_BUTTON_WIDTH), collapsed ? RR_uncollapse_category : RR_collapse_category))
             {
                 if(collapsed)
-                    collapsedCategories.Remove(category);
+                    collapsedCategories.Remove(category.Key);
                 else
-                    collapsedCategories.Add(category);
+                    collapsedCategories.Add(category.Key);
             }
 
-            TooltipHandler.TipRegion(headerRect, category.description);
+            TooltipHandler.TipRegion(headerRect, category.Description);
 
             heightTotal += headerRect.height + ROW_GAP;
             Widgets.DrawLineHorizontal(headerRect.x + 1f, headerRect.y + headerRect.height, headerRect.width - 2f);
@@ -252,9 +234,9 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 float heightTotalLocal = 0f;
                 float horizontalOffset = 0f;
 
-                foreach (var opportunity in matchingOpportunitites.OrderByDescending(o => o.MaximumProgress))
+                foreach (var opportunity in category.Opportunities)
                 {
-                    if (CompactMode && matchingOpportunitites.Count() > 1)
+                    if (CompactMode && category.Opportunities.Count > 1)
                         DrawOpportunityEntryCompact(wrapperRect, startPosition, ref heightTotalLocal, ref horizontalOffset, odd, opportunity);
                     else
                         DrawOpportunityEntry(wrapperRect, startPosition, ref heightTotalLocal, odd, opportunity);
@@ -271,7 +253,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             }
         }
 
-        private void DrawOpportunityEntryCompact(Rect wrapperRect, Rect templateRect, ref float heightTotal, ref float horizontalOffset, bool odd, ResearchOpportunity opportunity)
+        private void DrawOpportunityEntryCompact(Rect wrapperRect, Rect templateRect, ref float heightTotal, ref float horizontalOffset, bool odd, OpportunityPresentationViewModel opportunity)
         {
             Rect fullRect = new Rect(templateRect.x + horizontalOffset, templateRect.y + heightTotal, ICON_LARGE_SIZE, ICON_LARGE_SIZE).Rounded();
 
@@ -286,7 +268,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 Rect iconBoxInner = fullRect.ContractedBy(5f).Rounded();
 
                 var progressRect = new Rect(fullRect).ContractedBy(2f).Rounded();
-                progressRect.width *= opportunity.ProgressFraction;
+                progressRect.width *= opportunity.State.ProgressFraction;
                 Widgets.DrawBoxSolid(progressRect, progressColor);
 
                 DrawIconForOpportunity(opportunity, iconBoxInner);
@@ -299,22 +281,22 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 //{Requirements description (usually ThingDef name)}
                 var labelBox = textBoxInternal.TopPart(0.7f).Rounded();
                 labelBox.height = (float)(Text.LineHeightOf(GameFont.Tiny) * Math.Ceiling(labelBox.height / Text.LineHeightOf(GameFont.Tiny))) + 1f;
-                Widgets_Extra.LabelFitHeightAware(labelBox, $"{opportunity.requirement.ShortDesc.CapitalizeFirst()}");
+                Widgets_Extra.LabelFitHeightAware(labelBox, opportunity.RequirementLabel);
 
                 if (ResearchReinvented_Debug.debugPrintouts)
                 {
                 }
 
                 Text.Anchor = TextAnchor.LowerCenter;
-                if (!opportunity.def.GetCategory(opportunity.relation).Settings.infiniteOverflow)
+                if (!opportunity.InfiniteOverflow)
                 {
                     //{Progress} "X.x%"
-                    Widgets_Extra.LabelFitHeightAware(textBoxInternal, $"{Math.Round(opportunity.ProgressFraction * 100, 1)}%");
+                    Widgets_Extra.LabelFitHeightAware(textBoxInternal, $"{Math.Round(opportunity.State.ProgressFraction * 100, 1)}%");
                 }
                 else
                 {
                     //{Progress} "X / Y"
-                    Widgets_Extra.LabelFitHeightAware(textBoxInternal, $"{Math.Round(opportunity.Progress, 0)} / {Math.Round(opportunity.MaximumProgress, 0)}");
+                    Widgets_Extra.LabelFitHeightAware(textBoxInternal, $"{Math.Round(opportunity.State.Progress, 0)} / {Math.Round(opportunity.State.MaximumProgress, 0)}");
                 }
 
                 if (Mouse.IsOver(textBoxInternal))
@@ -324,8 +306,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                     var usedWidth = DrawHandlingModeHints(contracted, true, opportunity, borderColor, bgColor);
                 }
 
-                if (opportunity.CurrentAvailability != OpportunityAvailability.Available)
-                    DoUnavailabilityLabel(opportunity.CurrentAvailability, textBoxInternal.ContractedBy(2f), true);
+                if (opportunity.Availability != OpportunityAvailability.Available)
+                    DoUnavailabilityLabel(opportunity.Availability, textBoxInternal.ContractedBy(2f), true);
 
                 Text.Anchor = TextAnchor.MiddleLeft;
             }
@@ -337,11 +319,11 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 horizontalOffset = 0;
             }
 
-            TooltipHandler.TipRegion(fullRect, () => opportunity.HintText, 554410123 + opportunity.GetHashCode());
+            TooltipHandler.TipRegion(fullRect, () => TooltipFor(opportunity), 554410123 + opportunity.Key.GetHashCode());
         }
 
 
-        private void DrawOpportunityEntry(Rect wrapperRect, Rect templateRect, ref float heightTotal, bool odd, ResearchOpportunity opportunity)
+        private void DrawOpportunityEntry(Rect wrapperRect, Rect templateRect, ref float heightTotal, bool odd, OpportunityPresentationViewModel opportunity)
         {
             Rect fullRect = new Rect(templateRect.x, templateRect.y + heightTotal, templateRect.width, ROW_HEIGHT).Rounded();
 
@@ -362,7 +344,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 Widgets.DrawBoxSolid(textRect, borderColor);
                 Widgets.DrawBoxSolid(textRect.ContractedBy(2f).Rounded(), bgColor);
                 var progressRect = new Rect(textRect).ContractedBy(2f).Rounded();
-                progressRect.width *= opportunity.ProgressFraction;
+                progressRect.width *= opportunity.State.ProgressFraction;
                 Widgets.DrawBoxSolid(progressRect, progressColor);
                 Rect textBoxInternal = textRect.ContractedBy(2f, 0f).Rounded();
 
@@ -373,41 +355,41 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 textBoxInternal = textBoxInternal.RightPartPixels(textBoxInternal.width - usedWidth);
 
                 //{Opportunity name}
-                Widgets_Extra.LabelFitHeightAware(textBoxInternal.TopHalf().Rounded(), $"{opportunity.def.GetHeaderCap(opportunity.relation)}");
+                Widgets_Extra.LabelFitHeightAware(textBoxInternal.TopHalf().Rounded(), opportunity.Header);
                 //{Requirements description (usually ThingDef name)}
-                Widgets_Extra.LabelFitHeightAware(textBoxInternal.BottomHalf().Rounded(), $"{opportunity.requirement.ShortDesc.CapitalizeFirst()}");
+                Widgets_Extra.LabelFitHeightAware(textBoxInternal.BottomHalf().Rounded(), opportunity.RequirementLabel);
 
                 if (ResearchReinvented_Debug.debugPrintouts)
                 {
                     Text.Anchor = TextAnchor.MiddleCenter;
                     GUI.color = Color.green;
                     GUI.DrawTexture(textBoxInternal.TopHalf().LeftHalf(), TexUI.GrayTextBG);
-                    Widgets_Extra.LabelFitHeightAware(textBoxInternal.TopHalf().LeftHalf(), $"{opportunity.relation}");
+                    Widgets_Extra.LabelFitHeightAware(textBoxInternal.TopHalf().LeftHalf(), $"{opportunity.State.Relation}");
                     GUI.DrawTexture(textBoxInternal.BottomHalf(), TexUI.GrayTextBG);
-                    Widgets_Extra.LabelFitHeightAware(textBoxInternal.BottomHalf(), $"{opportunity.debug_source} (imp.: {opportunity.importance}) (alts: {opportunity.requirement.AlternateCount})");
+                    Widgets_Extra.LabelFitHeightAware(textBoxInternal.BottomHalf(), $"key: {opportunity.Key.Value} (imp.: {opportunity.State.Importance})");
                     GUI.color = Color.white;
 
                     if (GUI.Button(textBoxInternal.TopHalf().RightHalf(), "Finish")) 
                     {
-                        opportunity.FinishImmediately();
+                        ResearchOpportunityManager.Instance.DebugFinishOpportunity(opportunity.Key);
                     }
                     if (GUI.Button(textBoxInternal.BottomHalf().RightHalf(), "List alts"))
                     {
-                        opportunity.requirement.ListAlts();
+                        ResearchOpportunityManager.Instance.DebugListAlternates(opportunity.Key);
                     }
                 }
 
                 Text.Anchor = TextAnchor.MiddleRight;
                 //{Progress} "X.x%"
-                if (!opportunity.def.GetCategory(opportunity.relation).Settings.infiniteOverflow)
-                    Widgets_Extra.LabelFitHeightAware(textBoxInternal.BottomHalf().Rounded(), $"{Math.Round(opportunity.ProgressFraction * 100, 1)}%");
+                if (!opportunity.InfiniteOverflow)
+                    Widgets_Extra.LabelFitHeightAware(textBoxInternal.BottomHalf().Rounded(), $"{Math.Round(opportunity.State.ProgressFraction * 100, 1)}%");
 
                 //{Progress} "X / Y"
-                Widgets_Extra.LabelFitHeightAware(textBoxInternal.TopHalf().Rounded(), $"{Math.Round(opportunity.Progress, 0)} / {Math.Round(opportunity.MaximumProgress, 0)}");
+                Widgets_Extra.LabelFitHeightAware(textBoxInternal.TopHalf().Rounded(), $"{Math.Round(opportunity.State.Progress, 0)} / {Math.Round(opportunity.State.MaximumProgress, 0)}");
 
 
-                if (opportunity.CurrentAvailability != OpportunityAvailability.Available)
-                    DoUnavailabilityLabel(opportunity.CurrentAvailability, fullRect.ContractedBy(2f), false);
+                if (opportunity.Availability != OpportunityAvailability.Available)
+                    DoUnavailabilityLabel(opportunity.Availability, fullRect.ContractedBy(2f), false);
 
                 Text.Anchor = TextAnchor.MiddleLeft;
 
@@ -415,23 +397,23 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
 
             heightTotal += ROW_HEIGHT + ROW_GAP;
 
-            TooltipHandler.TipRegion(fullRect, () => opportunity.HintText, 554410123 + opportunity.GetHashCode());
+            TooltipHandler.TipRegion(fullRect, () => TooltipFor(opportunity), 554410123 + opportunity.Key.GetHashCode());
         }
 
-        private void DrawIconForOpportunity(ResearchOpportunity opportunity, Rect iconBox)
+        private void DrawIconForOpportunity(OpportunityPresentationViewModel opportunity, Rect iconBox)
         {
-            if(opportunity.requirement is ROComp_RequiresFactionlessPawn)
+            if(opportunity.IconKind == OpportunityIconKind.Generic)
             {
                 GUI.color = Color.white;
                 Widgets.DrawTextureFitted(iconBox, Textures.genericIcon, 1f, 1f);
             }
-            else if (opportunity.requirement is ROComp_RequiresFaction requiresPawnOfFaction) 
+            else if (opportunity.IconKind == OpportunityIconKind.Faction && opportunity.Faction != null)
             {
-                var faction = requiresPawnOfFaction.faction;
-                GUI.color = requiresPawnOfFaction.faction.Color;
+                var faction = opportunity.Faction;
+                GUI.color = faction.Color;
                 if(faction.def.FactionIcon != null && faction.def.FactionIcon != BaseContent.BadTex)
                 {
-                    Widgets.DrawTextureFitted(iconBox, requiresPawnOfFaction.faction.def.FactionIcon, 1f, 1f);
+                    Widgets.DrawTextureFitted(iconBox, faction.def.FactionIcon, 1f, 1f);
                 }
                 else
                 {
@@ -440,16 +422,15 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 GUI.color = Color.white;
 
                 if (Widgets.ButtonInvisible(iconBox))
-                    Find.WindowStack.Add(new Dialog_InfoCard(requiresPawnOfFaction.faction));
+                    Find.WindowStack.Add(new Dialog_InfoCard(faction));
             }
-            else if (opportunity.requirement is ROComp_RequiresRecipe requiresRecipeComp)
+            else if (opportunity.IconKind == OpportunityIconKind.Recipe && opportunity.Recipe != null)
 			{
-                var recipeDef = requiresRecipeComp.ShownCycledRecipe;
-                ResearchWidgets.RecipeDefIcon(iconBox, requiresRecipeComp.ShownCycledRecipe);
+                ResearchWidgets.RecipeDefIcon(iconBox, opportunity.Recipe);
 			}
-			else if (opportunity.requirement is ROComp_RequiresThing requiresThingComp)
+            else if (opportunity.IconKind == OpportunityIconKind.Thing && opportunity.Thing != null)
             {
-                ResearchWidgets.ThingDefIcon(iconBox, requiresThingComp.ShownCycledThing);
+                ResearchWidgets.ThingDefIcon(iconBox, opportunity.Thing);
             }
             // unused for now
             //else if (opportunity.requirement is ROComp_RequiresIngredients requiresIngredientsComp)
@@ -471,13 +452,9 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             //        }
             //    }
             //}
-            else if (opportunity.requirement is ROComp_RequiresTerrain requiresTerrainComp)
+            else if (opportunity.IconKind == OpportunityIconKind.Terrain && opportunity.Terrain != null)
             {
-                ResearchWidgets.TerrainDefIcon(iconBox, requiresTerrainComp.ShownCycledTerrain);
-            }
-            else if(opportunity.requirement is ROComp_RequiresSchematicWithProject requiresSchematic)
-            {
-                ResearchWidgets.ThingDefIcon(iconBox, ThingDefOf.Schematic, false);
+                ResearchWidgets.TerrainDefIcon(iconBox, opportunity.Terrain);
             }
             else
             {
@@ -485,16 +462,16 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
             }
         }
 
-        private float DrawHandlingModeHints(Rect container, bool useWholeWidth, ResearchOpportunity opportunity, Color borderColor, Color bgColor)
+        private float DrawHandlingModeHints(Rect container, bool useWholeWidth, OpportunityPresentationViewModel opportunity, Color borderColor, Color bgColor)
         {
             float offset = 0;
             var width = HINTICON_BOUNDING_BOX;
             var heightOffset = (container.height - HINTICON_BOUNDING_BOX) / 2;
             if (useWholeWidth)
             {
-                width = Mathf.Max(width, container.width / opportunity.def.Icons.Count);
+                width = opportunity.HandlingIcons.Count == 0 ? width : Mathf.Max(width, container.width / opportunity.HandlingIcons.Count);
             }
-            foreach(var icon in opportunity.def.Icons)
+            foreach(var icon in opportunity.HandlingIcons)
             {
                 var iconRect = new Rect(container.x + offset, container.y + heightOffset, width, HINTICON_BOUNDING_BOX);
 
@@ -507,6 +484,13 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld.UI
                 offset += width;
             }
             return offset;
+        }
+
+        private static string TooltipFor(OpportunityPresentationViewModel opportunity)
+        {
+            if (!DebugSettings.ShowDevGizmos)
+                return opportunity.Tooltip;
+            return opportunity.Tooltip + "\n\n" + opportunity.DeveloperDetails;
         }
 
         private static bool precachedTranslations = false;

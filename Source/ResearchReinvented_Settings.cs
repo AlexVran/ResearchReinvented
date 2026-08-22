@@ -52,6 +52,37 @@ namespace PeteTimesSix.ResearchReinvented
         private static Color LightGreen = new Color(0.7f, 1f, 0.7f);
         private static Color LightYellow = new Color(1.0f, 0.85f, 0.7f);
 
+        private Vector2 settingsScrollPosition = Vector2.zero;
+        private SettingTab lastDrawnTab = SettingTab.CATEGORY_PRESETS;
+        private IReadOnlyList<SettingsPresetDef> presetCatalog;
+        private IReadOnlyList<ResearchOpportunityCategoryDef> categoryCatalog;
+
+        internal IReadOnlyList<SettingsPresetDef> PresetCatalog
+        {
+            get
+            {
+                if (presetCatalog == null)
+                    presetCatalog = ResearchRuntimeServices.Current.AllDefsListForReading<SettingsPresetDef>()
+                        .OrderByDescending(preset => preset.priority)
+                        .ThenBy(preset => preset.defName, StringComparer.Ordinal)
+                        .ToList().AsReadOnly();
+                return presetCatalog;
+            }
+        }
+
+        internal IReadOnlyList<ResearchOpportunityCategoryDef> CategoryCatalog
+        {
+            get
+            {
+                if (categoryCatalog == null)
+                    categoryCatalog = ResearchRuntimeServices.Current.AllDefsListForReading<ResearchOpportunityCategoryDef>()
+                        .OrderByDescending(category => category.priority)
+                        .ThenBy(category => category.defName, StringComparer.Ordinal)
+                        .ToList().AsReadOnly();
+                return categoryCatalog;
+            }
+        }
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -94,21 +125,34 @@ namespace PeteTimesSix.ResearchReinvented
 
             listingStandard.End();
 
+            if (lastDrawnTab != temp_activeTab)
+            {
+                lastDrawnTab = temp_activeTab;
+                settingsScrollPosition = Vector2.zero;
+            }
+
+            var minimumContentHeight = temp_activeTab == SettingTab.CATEGORY_CONFIG ? 760f
+                : temp_activeTab == SettingTab.CATEGORY_PRESETS ? 620f
+                : 420f;
+            var viewRect = new Rect(0f, 0f, Math.Max(1f, restOfRect.width - 18f), Math.Max(restOfRect.height, minimumContentHeight));
+            Widgets.BeginScrollView(restOfRect, ref settingsScrollPosition, viewRect);
+
             switch (temp_activeTab)
             {
                 case SettingTab.GLOBAL_CONFIG:
-                    DoGlobalConfigTab(restOfRect);
+                    DoGlobalConfigTab(viewRect);
                     break;
                 case SettingTab.CATEGORY_PRESETS:
-                    DoPresetTab(restOfRect);
+                    DoPresetTab(viewRect);
                     break;
                 case SettingTab.CATEGORY_CONFIG:
-                    DoCategoriesConfigTab(restOfRect);
+                    DoCategoriesConfigTab(viewRect);
                     break;
                 case SettingTab.MOD_INTEGRATIONS:
-                    DoModIntegrationTab(restOfRect);
+                    DoModIntegrationTab(viewRect);
                     break;
             }
+            Widgets.EndScrollView();
 
             Text.Anchor = anchor;
             GUI.color = preColor;
@@ -162,27 +206,27 @@ namespace PeteTimesSix.ResearchReinvented
                 var visualizerRect = sectionListing.GetRect(remainingHeight);
                 //Widgets.DrawWindowBackgroundTutor(visualizerRect);
 
-                CategoriesVisualizer.DrawCategories(visualizerRect);
+                CategoriesVisualizer.DrawCategories(visualizerRect, CategoryCatalog);
 
                 sectionListing.NewHiddenColumn(ref maxHeightAccumulator);
                 
                 sectionListing.Gap();
                 Text.Anchor = TextAnchor.MiddleCenter;
-                sectionListing.Label(activePreset.LabelCap);
+                sectionListing.Label(GetActivePreset().LabelCap);
                 sectionListing.Gap();
                 Text.Anchor = TextAnchor.MiddleLeft;
-                sectionListing.Label(activePreset.description);
+                sectionListing.Label(GetActivePreset().description);
                 sectionListing.GapLine();
                 sectionListing.Gap();
 
                 SettingsPresetDef hoveredPreset = null;
-                foreach (var preset in DefDatabase<SettingsPresetDef>.AllDefsListForReading.OrderByDescending(p => p.priority))
+                foreach (var preset in PresetCatalog)
                 {
                     var heightPre = sectionListing.CurHeight;
                     if (sectionListing.RadioButton(preset.LabelCap, activePreset == preset))
                     {
                         activePreset = preset;
-                        foreach (var categoryDef in DefDatabase<ResearchOpportunityCategoryDef>.AllDefsListForReading)
+                        foreach (var categoryDef in CategoryCatalog)
                             categoryDef.ClearCachedData();
                         categorySettingChanges.Clear();
                         categorySettings.Clear();
@@ -240,13 +284,13 @@ namespace PeteTimesSix.ResearchReinvented
                 var visualizerRect = sectionListing.GetRect(remainingHeight);
                 //Widgets.DrawWindowBackgroundTutor(visualizerRect);
 
-                CategoriesVisualizer.DrawCategories(visualizerRect);
+                CategoriesVisualizer.DrawCategories(visualizerRect, CategoryCatalog);
 
                 sectionListing.NewHiddenColumn(ref maxHeightAccumulator);
                 if (sectionListing.ButtonText("RR_setting_category_selector".Translate()))
                 {
                     var options = new List<FloatMenuOption>();
-                    foreach (var category in DefDatabase<ResearchOpportunityCategoryDef>.AllDefsListForReading.OrderByDescending(d => d.priority))
+                    foreach (var category in CategoryCatalog)
                     {
                         options.Add(new FloatMenuOption(category.LabelCap, () => { temp_selectedCategory = category; }));
                     }

@@ -1,5 +1,6 @@
 ﻿using PeteTimesSix.ResearchReinvented.Defs;
 using System;
+using PeteTimesSix.ResearchReinvented.Domain.Settings;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,26 +42,10 @@ namespace PeteTimesSix.ResearchReinvented.Data
 
         public void UpdateChanges(CategorySettingsPreset defaults, CategorySettingsFinal finals)
         {
-            //set only if different, but dont un-set if not
-            //this way, once a user sets a setting the value will be preserved
-            if (enabled.HasValue || finals.enabled != defaults.enabled)
-                enabled = finals.enabled;
-
-            if (importanceStatic.HasValue || finals.importanceStatic != defaults.importanceStatic)
-                importanceStatic = finals.importanceStatic;
-            if (importanceMultiplier.HasValue || finals.importanceMultiplier != defaults.importanceMultiplier)
-                importanceMultiplier = finals.importanceMultiplier;
-            if (importanceMultiplierCounted.HasValue || finals.importanceMultiplierCounted != defaults.importanceMultiplierCounted)
-                importanceMultiplierCounted = finals.importanceMultiplierCounted;
-            if (infiniteOverflow.HasValue || finals.infiniteOverflow != defaults.infiniteOverflow)
-                infiniteOverflow = finals.infiniteOverflow;
-            if (targetIterations.HasValue || finals.targetIterations != defaults.targetIterations)
-                targetIterations = finals.targetIterations;
-            if (researchSpeedMultiplier.HasValue || finals.researchSpeedMultiplier != defaults.researchSpeedMultiplier)
-                researchSpeedMultiplier = finals.researchSpeedMultiplier;
-
-            if (enabled.HasValue || finals.availableAtOverallProgress != defaults.availableAtOverallProgress)
-                availableAtOverallProgress = finals.availableAtOverallProgress;
+            var difference = CategorySettingsResolver.SparseDifference(
+                CategorySettingsDomainAdapter.ToValue(defaults),
+                CategorySettingsDomainAdapter.ToValue(finals));
+            CategorySettingsDomainAdapter.Apply(difference, this);
         }
     }
 }

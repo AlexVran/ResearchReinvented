@@ -26,7 +26,7 @@ namespace PeteTimesSix.ResearchReinvented.Utilities.CustomWidgets
 
         private static readonly Color WindowBGBorderColor = new ColorInt(97, 108, 122).ToColor;
 
-        public static void DrawCategories(Rect rect) 
+        public static void DrawCategories(Rect rect, IReadOnlyList<ResearchOpportunityCategoryDef> categoryCatalog)
         {
             var anchor = Text.Anchor;
             var color = GUI.color;
@@ -40,7 +40,7 @@ namespace PeteTimesSix.ResearchReinvented.Utilities.CustomWidgets
             //loat maxAllFractionMultiplier = 1f;
             float maxResearchSpeedMultiplier = 0f;
 
-            var categories = DefDatabase<ResearchOpportunityCategoryDef>.AllDefsListForReading.OrderByDescending(d => d.priority).ToList();
+            var categories = (categoryCatalog ?? Array.Empty<ResearchOpportunityCategoryDef>()).ToList();
 
             foreach (var category in categories)
             {

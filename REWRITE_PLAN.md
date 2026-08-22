@@ -90,7 +90,7 @@ and prototype Harmony work in a single unreviewable change.
 - [x] Phase 7: run the new generator in shadow mode
 - [x] Phase 8: introduce the opportunity service and versioned save state
 - [x] Phase 9: migrate analysis and clinical execution
-- [ ] Phase 10: migrate UI, settings, and remaining lookups
+- [x] Phase 10: migrate UI, settings, and remaining lookups
 - [ ] Phase 11: replace or contain prototyping
 - [ ] Phase 12: add compatibility, malformed-Def, and performance coverage
 - [ ] Phase 13: add curated opportunities for generic-only research projects

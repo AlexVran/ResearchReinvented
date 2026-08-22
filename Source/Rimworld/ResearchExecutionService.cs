@@ -39,6 +39,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
     {
         private readonly ResearchOpportunityManager owner;
         private readonly OpportunityActivityRegistry registry = new OpportunityActivityRegistry();
+        private readonly Dictionary<ActivityHandlerId, HandlerCapability> handlerCapabilities = new Dictionary<ActivityHandlerId, HandlerCapability>();
         private readonly Dictionary<OpportunityKey, ResearchOpportunity> projections = new Dictionary<OpportunityKey, ResearchOpportunity>();
         private readonly OpportunityQueryIndex<Map, MapQueryKey, ResearchOpportunity> mapIndex = new OpportunityQueryIndex<Map, MapQueryKey, ResearchOpportunity>();
         private readonly HashSet<string> loggedUnavailableHandlers = new HashSet<string>(StringComparer.Ordinal);
@@ -102,6 +103,19 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
         public void InvalidateMapIndexes()
         {
             mapIndex.InvalidateAll();
+        }
+
+        internal IReadOnlyList<string> UnavailabilityReasonsFor(ResearchOpportunity opportunity)
+        {
+            if (opportunity == null)
+                return Array.Empty<string>();
+            return registry.Diagnostics
+                .Where(diagnostic => handlerCapabilities.TryGetValue(diagnostic.HandlerId, out var capability)
+                    && capability.Supports(opportunity))
+                .Select(diagnostic => $"{diagnostic.HandlerId} ({diagnostic.Status}): {diagnostic.Reason}")
+                .Distinct()
+                .OrderBy(detail => detail, StringComparer.Ordinal)
+                .ToArray();
         }
 
         public IReadOnlyList<ResearchOpportunity> QueryCurrent(
@@ -226,6 +240,7 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
         private void Register(ActivityHandlerId id, HandlingMode mode, Type driverClass = null, Func<ActivityHandlerSelfCheck> startupCheck = null)
         {
             registry.Register(new RuntimeActivityHandler(id, this, mode, driverClass, startupCheck));
+            handlerCapabilities[id] = new HandlerCapability(mode, driverClass);
         }
 
         private static ActivityHandlerSelfCheck TargetsAvailable(params object[] targets)
@@ -290,6 +305,25 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
             public IEnumerable<OpportunityKey> Select(ActivityHandlerQuery query) => query.Specifications
                 .Where(item => owner.Supports(item.Spec.Key, mode, driverClass))
                 .Select(item => item.Spec.Key);
+        }
+
+        private sealed class HandlerCapability
+        {
+            private readonly HandlingMode mode;
+            private readonly Type driverClass;
+
+            internal HandlerCapability(HandlingMode mode, Type driverClass)
+            {
+                this.mode = mode;
+                this.driverClass = driverClass;
+            }
+
+            internal bool Supports(ResearchOpportunity opportunity)
+            {
+                if (opportunity?.def == null || !opportunity.def.handledBy.HasFlag(mode))
+                    return false;
+                return driverClass == null || opportunity.JobDefs.Any(job => job.driverClass == driverClass);
+            }
         }
 
         private sealed class MapQueryKey : IEquatable<MapQueryKey>

@@ -62,10 +62,7 @@ namespace PeteTimesSix.ResearchReinvented
         public void FixupDialog()
         {
             var fixupDialog = new Dialog_FixupSettingsChange("RR_setting_fixupConfirm".Translate(), () => {
-                ResearchOpportunityManager.Instance.ResetAllProgress();
-                CacheClearer.ClearCaches();
-                ResearchOpportunityManager.Instance.DelayedRegeneration();
-                ResearchOpportunityManager.Instance.changeTicker = Settings.changeTicker;
+                ResearchOpportunityManager.Instance.ReconcileSettingsChange(Settings.changeTicker);
             });
             Find.WindowStack.Add(fixupDialog);
         }
@@ -85,6 +82,7 @@ namespace PeteTimesSix.ResearchReinvented
             AssociateKitsWithResearchProjects();
 			AlternatesKeeper.PrepareAlternates();
 			ResearchDefIndexSession.Initialize(ResearchRuntimeServices.Current);
+			LoadedPresentationDefCatalog.Initialize(ResearchRuntimeServices.Current);
 			ResearchShadowComparisonSession.Initialize(ResearchRuntimeServices.Current);
         }
 
