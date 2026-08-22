@@ -75,7 +75,7 @@ and prototype Harmony work in a single unreviewable change.
 ## Progress checklist
 
 - [x] Phase 0: confirm scope and capture the behavioral baseline
-- [ ] Phase 1: modernize the repository and build without changing gameplay
+- [x] Phase 1: modernize the repository and build without changing gameplay
 - [ ] Phase 2: add characterization fixtures and test seams
 - [ ] Phase 3: introduce the new domain contracts
 - [ ] Phase 4: build the immutable Def index and evidence graph
