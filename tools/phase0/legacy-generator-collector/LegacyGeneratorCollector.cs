@@ -1,6 +1,8 @@
+using PeteTimesSix.ResearchReinvented;
 using PeteTimesSix.ResearchReinvented.Managers;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,7 @@ namespace ResearchReinventedRewrite.Phase0
 {
     public sealed class LegacyGeneratorCollector : GameComponent
     {
+        private const int MaximumInitializationWaitFrames = 600;
         private static readonly FieldInfo MaximumProgressField = typeof(ResearchOpportunity)
             .GetField("maximumProgress", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -24,6 +27,8 @@ namespace ResearchReinventedRewrite.Phase0
             .GetField("currentProgress", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private static bool collected;
+        private static string pendingOutputPath;
+        private static int initializationWaitFrames;
 
         public LegacyGeneratorCollector(Game game)
         {
@@ -37,8 +42,26 @@ namespace ResearchReinventedRewrite.Phase0
             if (collected || outputPath.NullOrEmpty())
                 return;
 
+            pendingOutputPath = outputPath;
+            LongEventHandler.ExecuteWhenFinished(TryCollect);
+        }
+
+        public override void GameComponentUpdate()
+        {
+            base.GameComponentUpdate();
+            TryCollect();
+        }
+
+        private static void TryCollect()
+        {
+            if (collected || pendingOutputPath.NullOrEmpty())
+                return;
+
+            if (RR_UniqueIDsManager.instance == null && ++initializationWaitFrames < MaximumInitializationWaitFrames)
+                return;
+
             collected = true;
-            LongEventHandler.ExecuteWhenFinished(() => Collect(outputPath));
+            Collect(pendingOutputPath);
         }
 
         private static void Collect(string outputPath)
@@ -104,6 +127,17 @@ namespace ResearchReinventedRewrite.Phase0
             var generated = ResearchOpportunityPrefabs.MakeOpportunitiesForProject(project);
             stopwatch.Stop();
             long memoryAfter = GC.GetTotalMemory(false);
+
+			if (Environment.GetEnvironmentVariable("RR_SHADOW_COMPARE") == "1")
+			{
+				ResearchReinvented_Debug.shadowComparisons = true;
+				var shadowType = typeof(ResearchOpportunityPrefabs).Assembly.GetType(
+					"PeteTimesSix.ResearchReinvented.Rimworld.ResearchShadowComparisonSession",
+					throwOnError: true);
+				var shadowCompare = shadowType.GetMethod("Compare", BindingFlags.Static | BindingFlags.NonPublic)
+					?? throw new MissingMethodException(shadowType.FullName, "Compare");
+				shadowCompare.Invoke(null, new object[] { project, generated.opportunities, generated.categoryStores });
+			}
 
             return new ProjectSnapshot
             {

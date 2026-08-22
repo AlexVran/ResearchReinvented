@@ -127,7 +127,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 						rejections.Add(new RejectionReason(RejectionReasonKind.InvalidRequirement, "A force override has an unsupported subject type.", item.SourceDef));
 						continue;
 					}
-					candidates.Add(new OpportunityCandidate("metadata.force", Spec(project, item.OpportunityType, item.Relation ?? ResearchRelation.Direct, requirement, item.ImportanceMultiplier, false, true,
+					candidates.Add(new OpportunityCandidate("metadata.force", Spec(project, item.OpportunityType, item.Relation ?? ResearchRelation.Direct, requirement, item.ImportanceMultiplier, false, false,
 						new GenerationReason(GenerationReasonKind.ExplicitMetadata, EvidenceSource.ModExtension, item.SourceDef, "forced"))));
 					continue;
 				}
@@ -186,7 +186,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 		public abstract OpportunityRuleResult Evaluate(OpportunityRuleContext context);
 
 		protected OpportunityCandidate Candidate(OpportunityRuleContext context, string type, SubjectEvidence evidence, RequirementSpec requirement, GenerationReasonKind reasonKind) =>
-			new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of(type), evidence.Relation, requirement, 1f, false, true,
+			new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of(type), evidence.Relation, requirement, 1f, false, false,
 				new GenerationReason(reasonKind, evidence.Source, evidence.SourceDef, evidence.Role.ToString())), evidence.Confidence);
 
 		protected static bool Strong(SubjectEvidence evidence) => evidence.Role == SubjectRole.AnalysisRequirement || evidence.Role == SubjectRole.Unlock || evidence.Role == SubjectRole.Product;
@@ -204,11 +204,11 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 			var reason = new GenerationReason(GenerationReasonKind.Project, EvidenceSource.ProjectDefinition, context.Project);
 			var candidates = new List<OpportunityCandidate>
 			{
-				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("BasicResearch"), ResearchRelation.Direct, RequirementSpec.Nothing(), 1f, false, true, reason)),
-				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("SchematicStudy"), ResearchRelation.Direct, RequirementSpec.ForSchematic(context.Project), 1f, false, true, reason))
+				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("BasicResearch"), ResearchRelation.Direct, RequirementSpec.Nothing(), 1f, false, false, reason)),
+				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("SchematicStudy"), ResearchRelation.Direct, RequirementSpec.ForSchematic(context.Project), 1f, false, false, reason))
 			};
 			if (context.Index.TryGetProject(context.Project, out var project) && project?.Techprint != null)
-				candidates.Add(new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("AnalyseTechprint"), ResearchRelation.Direct, RequirementSpec.ForThing(project.Techprint), 1f, false, true,
+				candidates.Add(new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("AnalyseTechprint"), ResearchRelation.Direct, RequirementSpec.ForThing(project.Techprint), 1f, false, false,
 					new GenerationReason(GenerationReasonKind.RequiredAnalysis, EvidenceSource.ProjectDefinition, context.Project, "techprint"))));
 			return new OpportunityRuleResult(candidates);
 		}
@@ -223,9 +223,9 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 			var reason = new GenerationReason(GenerationReasonKind.Faction, EvidenceSource.ProjectDefinition, context.Project, "static opportunity; runtime availability deferred");
 			return new OpportunityRuleResult(new[]
 			{
-				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("Brainstorming"), ResearchRelation.Direct, RequirementSpec.ForFaction(DefIdentity.Synthetic("player-faction")), 1f, false, true, reason)),
-				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("GainFactionKnowledge"), ResearchRelation.Direct, RequirementSpec.ForFaction(DefIdentity.Synthetic("non-player-faction")), 1f, false, true, reason)),
-				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("GainFactionlessKnowledge"), ResearchRelation.Direct, RequirementSpec.FactionlessPawn(), 1f, false, true, reason))
+				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("Brainstorming"), ResearchRelation.Direct, RequirementSpec.ForFaction(DefIdentity.Synthetic("player-faction")), 1f, false, false, reason)),
+				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("GainFactionKnowledge"), ResearchRelation.Direct, RequirementSpec.ForFaction(DefIdentity.Synthetic("non-player-faction")), 1f, false, false, reason)),
+				new OpportunityCandidate(Id, OpportunityRuleRegistry.Spec(context.Project, OpportunityTypeIds.Of("GainFactionlessKnowledge"), ResearchRelation.Direct, RequirementSpec.FactionlessPawn(), .5f, false, false, reason))
 			});
 		}
 	}
@@ -276,7 +276,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 		public override OpportunityRuleResult Evaluate(OpportunityRuleContext context)
 		{
 			var candidates = new List<OpportunityCandidate>();
-			foreach (var evidence in context.Evidence.Where(evidence => evidence.Subject.DefType == "ThingDef"))
+			foreach (var evidence in context.Evidence.Where(evidence => evidence.Relation == ResearchRelation.Direct && evidence.Subject.DefType == "ThingDef"))
 			{
 				if (!context.Index.TryGetThing(evidence.Subject, out var thing) || thing == null) continue;
 				if (evidence.Role == SubjectRole.ProductionFacility && context.Index.TryGetProject(context.Project, out var project) && project!.Unlocks.Contains(thing.Identity)) continue;
@@ -296,7 +296,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 						type = Has(thing.Traits, ThingDefTraits.Drug) ? "AnalyseFuelDrug" : Has(thing.Traits, ThingDefTraits.Ingestible) ? "AnalyseFuelFood" : Has(thing.Traits, ThingDefTraits.Flammable) ? "AnalyseFuelFlammable" : "AnalyseFuel";
 						break;
 				}
-				if (type != null) candidates.Add(Candidate(context, type, evidence, ThingRequirement(context, evidence), GenerationReasonKind.Ingredient));
+				if (type != null) candidates.Add(Candidate(context, type, evidence,
+					OpportunityRuleRegistry.RequirementFor(context.Index, evidence.Subject, AlternateSubjectMode.Equivalent)!, GenerationReasonKind.Ingredient));
 				if (evidence.Role == SubjectRole.ProductionFacility && Has(thing.Traits, ThingDefTraits.Pawn) && thing.CorpseDefinition != null)
 					candidates.Add(Candidate(context, Has(thing.Traits, ThingDefTraits.FleshPawn) ? "AnalyseDissect" : "AnalyseDissectNonFlesh", evidence,
 						OpportunityRuleRegistry.RequirementFor(context.Index, thing.CorpseDefinition, AlternateSubjectMode.Equivalent)!, GenerationReasonKind.Ingredient));
@@ -310,8 +311,9 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Rules
 		public override string Id => "plants";
 		public override int Order => 500;
 		public override OpportunityRuleResult Evaluate(OpportunityRuleContext context) => new OpportunityRuleResult(
-			context.Evidence.Where(evidence => evidence.Role == SubjectRole.Plant && evidence.Subject.DefType == "ThingDef")
-				.Select(evidence => Candidate(context, "AnalyseHarvestProduct", evidence, ThingRequirement(context, evidence), GenerationReasonKind.Plant)).ToArray());
+			context.Evidence.Where(evidence => evidence.Relation == ResearchRelation.Direct && evidence.Role == SubjectRole.Plant && evidence.Subject.DefType == "ThingDef")
+				.Select(evidence => Candidate(context, "AnalyseHarvestProduct", evidence,
+					OpportunityRuleRegistry.RequirementFor(context.Index, evidence.Subject, AlternateSubjectMode.Equivalent)!, GenerationReasonKind.Plant)).ToArray());
 	}
 
 	internal sealed class TerrainRule : OpportunityRuleBase

@@ -26,6 +26,15 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
             Log.Message($"Toggled debug printouts {(ResearchReinvented_Debug.debugPrintouts ? "on" : "off")}");
         }
 
+		[DebugAction(category = CATEGORY, actionType = DebugActionType.Action)]
+		static void ToggleShadowComparisons()
+		{
+			ResearchReinvented_Debug.shadowComparisons = !ResearchReinvented_Debug.shadowComparisons;
+			Log.Message($"RR: shadow comparisons {(ResearchReinvented_Debug.shadowComparisons ? "enabled" : "disabled")}; this setting is not saved.");
+			if (ResearchReinvented_Debug.shadowComparisons && Current.ProgramState == ProgramState.Playing)
+				ResearchOpportunityManager.Instance.RunShadowComparisonForCurrentProject();
+		}
+
 
         [DebugAction(category = CATEGORY, actionType = DebugActionType.Action)]
         static void TogglePrototypeGridDrawing()

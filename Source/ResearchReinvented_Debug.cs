@@ -10,5 +10,6 @@ namespace PeteTimesSix.ResearchReinvented
     {
         public static bool debugPrintouts = false;
         public static bool drawPrototypeGrid = false;
+		public static bool shadowComparisons = false;
     }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Domain;
@@ -80,8 +81,9 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 			if (identity == null)
 				return null;
 
-			var prerequisites = Enumerable.Repeat(recipe!.researchPrerequisite, 1)
-				.Concat(recipe.researchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>());
+			var prerequisites = (recipe!.researchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>()).AsEnumerable();
+			if (recipe.researchPrerequisite != null)
+				prerequisites = Enumerable.Repeat(recipe.researchPrerequisite, 1).Concat(prerequisites);
 			return new RecipeDefSnapshot(
 				identity,
 				IdentitiesFor<ResearchProjectDef>(prerequisites),
@@ -113,9 +115,12 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 			var fuels = fuelComp?.fuelFilter == null
 				? Enumerable.Empty<DefRequirementSnapshot?>()
 				: new[] { DefRequirementSnapshot.Filter(fuelComp.fuelFilter.AllowedThingDefs.Select(IdentityFor<ThingDef>)) };
+			var researchPrerequisites = (thing.researchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>())
+				.Concat(thing.plant?.sowResearchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>())
+				.Distinct();
 			return new ThingDefSnapshot(
 				identity,
-				IdentitiesFor<ResearchProjectDef>(thing.researchPrerequisites),
+				IdentitiesFor<ResearchProjectDef>(researchPrerequisites),
 				costs,
 				IdentityFor<ThingDef>(thing.plant?.harvestedThingDef),
 				fuels,
@@ -329,7 +334,10 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 			}
 			foreach (var thing in things.Where(thing => thing != null))
 			{
-				foreach (var project in thing.researchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>())
+				var prerequisites = (thing.researchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>())
+					.Concat(thing.plant?.sowResearchPrerequisites ?? Enumerable.Empty<ResearchProjectDef>())
+					.Distinct();
+				foreach (var project in prerequisites)
 					AddUnlock(result, project, thing);
 			}
 			foreach (var terrain in terrains.Where(terrain => terrain != null))
@@ -396,17 +404,22 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 	internal static class ResearchDefIndexSession
 	{
 		private static ResearchDefIndex? current;
+		private static double constructionElapsedMilliseconds;
 
 		internal static ResearchDefIndex Current => current
 			?? throw new InvalidOperationException("The immutable Research Reinvented Def index has not been initialized.");
+		internal static double ConstructionElapsedMilliseconds => constructionElapsedMilliseconds;
 
 		internal static void Initialize(IResearchRuntimeServices services)
 		{
 			if (current != null)
 				return;
 
+			var stopwatch = Stopwatch.StartNew();
 			var built = ResearchDefIndex.Build(new LoadedDefSnapshotSource(services));
+			stopwatch.Stop();
 			current = built;
+			constructionElapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
 			foreach (var cycle in built.PrerequisiteCycles)
 				Log.Warning($"RR: immutable Def index found prerequisite cycle: {string.Join(" -> ", cycle.Projects.Select(project => project.DefName))}");
 			foreach (var diagnostic in built.Diagnostics.Take(50))

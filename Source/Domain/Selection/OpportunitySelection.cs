@@ -171,7 +171,11 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Selection
 					diagnostics.Add(new RejectionReason(RejectionReasonKind.InvalidEvidence, "A rule returned a null opportunity candidate."));
 					continue;
 				}
-				normalized.Add(Normalize(index, candidate));
+				normalized.Add(new OpportunityCandidate(
+					candidate.RuleId,
+					NormalizeSpec(index, candidate.Spec),
+					candidate.EvidenceConfidence,
+					candidate.StaticFeasibility));
 			}
 			var merged = new List<MergedCandidate>();
 			foreach (var group in normalized.GroupBy(candidate => candidate.Spec.Key).OrderBy(group => group.Key))
@@ -226,19 +230,44 @@ namespace PeteTimesSix.ResearchReinvented.Domain.Selection
 				.Select(reason => reason.SourceDef).OrderBy(source => source).FirstOrDefault() ?? spec.Requirement.CanonicalSubject;
 		}
 
-		private static OpportunityCandidate Normalize(ResearchDefIndex index, OpportunityCandidate candidate)
+		internal static OpportunitySpec NormalizeSpec(ResearchDefIndex index, OpportunitySpec spec)
 		{
-			var spec = candidate.Spec; var requirement = spec.Requirement;
-			if (requirement.Kind != RequirementKind.Thing && requirement.Kind != RequirementKind.Terrain && requirement.Kind != RequirementKind.Recipe) return candidate;
+			if (index == null) throw new ArgumentNullException(nameof(index));
+			if (spec == null) throw new ArgumentNullException(nameof(spec));
+			var requirement = spec.Requirement;
+			if (requirement.Kind != RequirementKind.Thing && requirement.Kind != RequirementKind.Terrain && requirement.Kind != RequirementKind.Recipe) return spec;
 			var group = index.AlternateGroupFor(requirement.CanonicalSubject, AlternateSubjectMode.Equivalent);
-			if (group == null) return candidate;
+			if (group == null) return spec;
 			var canonical = group.Members[0];
 			var alternates = requirement.AlternateSubjects.Concat(group.Members).Where(subject => subject != canonical).Distinct().OrderBy(subject => subject).ToArray();
 			var mode = requirement.AlternateMode == AlternateSubjectMode.None ? AlternateSubjectMode.Equivalent : requirement.AlternateMode;
 			var normalized = requirement.Kind == RequirementKind.Thing ? RequirementSpec.ForThing(canonical, mode, alternates)
 				: requirement.Kind == RequirementKind.Terrain ? RequirementSpec.ForTerrain(canonical, mode, alternates)
 				: RequirementSpec.ForRecipe(canonical, mode, alternates);
-			return new OpportunityCandidate(candidate.RuleId, new OpportunitySpec(spec.Project, spec.Type, spec.Relation, normalized, spec.Importance, spec.Rare, spec.Freebie, spec.Reasons), candidate.EvidenceConfidence, candidate.StaticFeasibility);
+			return new OpportunitySpec(spec.Project, spec.Type, spec.Relation, normalized, spec.Importance, spec.Rare, spec.Freebie, spec.Reasons);
+		}
+
+		internal static OpportunitySpec NormalizeForComparison(ResearchDefIndex index, OpportunitySpec spec)
+		{
+			var normalizedSpec = NormalizeSpec(index, spec);
+			var requirement = normalizedSpec.Requirement;
+			if (requirement.AlternateMode != AlternateSubjectMode.Similar)
+				return normalizedSpec;
+			var group = index.AlternateGroupFor(requirement.CanonicalSubject, AlternateSubjectMode.Similar);
+			if (group == null)
+				return normalizedSpec;
+			var canonical = group.Members[0];
+			var alternates = requirement.AlternateSubjects.Concat(group.Members)
+				.Where(subject => subject != canonical).Distinct().OrderBy(subject => subject).ToArray();
+			var normalizedRequirement = requirement.Kind == RequirementKind.Thing
+				? RequirementSpec.ForThing(canonical, AlternateSubjectMode.Similar, alternates)
+				: requirement.Kind == RequirementKind.Terrain
+					? RequirementSpec.ForTerrain(canonical, AlternateSubjectMode.Similar, alternates)
+					: requirement.Kind == RequirementKind.Recipe
+						? RequirementSpec.ForRecipe(canonical, AlternateSubjectMode.Similar, alternates)
+						: requirement;
+			return new OpportunitySpec(normalizedSpec.Project, normalizedSpec.Type, normalizedSpec.Relation, normalizedRequirement,
+				normalizedSpec.Importance, normalizedSpec.Rare, normalizedSpec.Freebie, normalizedSpec.Reasons);
 		}
 
 		private static OpportunityScore Score(MergedCandidate candidate)

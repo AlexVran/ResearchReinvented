@@ -928,7 +928,9 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 
 				internal IEnumerable<IReadOnlyList<DefIdentity>> Groups()
 				{
-					return parent.Keys.GroupBy(Find).Select(group => AsReadOnly(group.OrderBy(identity => identity).ToArray()));
+					// Find performs path compression. Snapshot the keys so Mono's Dictionary
+					// enumerator is not invalidated when an existing parent value changes.
+					return parent.Keys.ToArray().GroupBy(Find).Select(group => AsReadOnly(group.OrderBy(identity => identity).ToArray()));
 				}
 
 				private DefIdentity Find(DefIdentity item)

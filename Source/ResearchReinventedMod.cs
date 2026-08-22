@@ -83,8 +83,9 @@ namespace PeteTimesSix.ResearchReinvented
 
             AddRarityModExtensions();
             AssociateKitsWithResearchProjects();
-            AlternatesKeeper.PrepareAlternates();
+			AlternatesKeeper.PrepareAlternates();
 			ResearchDefIndexSession.Initialize(ResearchRuntimeServices.Current);
+			ResearchShadowComparisonSession.Initialize(ResearchRuntimeServices.Current);
         }
 
         private static void AssociateKitsWithResearchProjects()

@@ -432,6 +432,11 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 }
                 else
                 {
+					if (ResearchReinvented_Debug.shadowComparisons && ResearchRuntimeServices.Current.CurrentResearchProject == project)
+						ResearchShadowComparisonSession.Compare(
+							project,
+							_allGeneratedOpportunities.Where(opportunity => opportunity.IsValid() && opportunity.project == project).ToArray(),
+							_categoryStores.Where(store => store.project == project).ToArray());
                     return;
                 }
             }
@@ -448,6 +453,9 @@ namespace PeteTimesSix.ResearchReinvented.Managers
 
             _allGeneratedOpportunities.AddRange(newOpportunities.Where(o => o.IsValid()));
             _projectsGenerated.Add(project);
+
+			if (ResearchReinvented_Debug.shadowComparisons && ResearchRuntimeServices.Current.CurrentResearchProject == project)
+				ResearchShadowComparisonSession.Compare(project, newOpportunities.Where(o => o.IsValid()).ToArray(), categoryStores);
 
             if (ResearchReinvented_Debug.debugPrintouts)
             {
@@ -469,6 +477,19 @@ namespace PeteTimesSix.ResearchReinvented.Managers
                 projectCategoryAvailability[category] = category.GetCurrentAvailability(project);
             }
         }
+
+		internal void RunShadowComparisonForCurrentProject()
+		{
+			if (_currentProject == null)
+			{
+				Log.Message("RR shadow: no current research project is selected.");
+				return;
+			}
+			ResearchShadowComparisonSession.Compare(
+				_currentProject,
+				_allGeneratedOpportunities.Where(opportunity => opportunity.IsValid() && opportunity.project == _currentProject).ToArray(),
+				_categoryStores.Where(store => store.project == _currentProject).ToArray());
+		}
 
         public override void ExposeData()
         {
