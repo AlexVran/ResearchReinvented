@@ -84,65 +84,27 @@ namespace PeteTimesSix.ResearchReinvented.ModCompat
 
         public static IEnumerable<CodeInstruction> DoRow_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var enumerator = instructions.GetEnumerator();
-
-            /*var type = AccessTools.TypeByName("DubsMintMenus.Patch_BillStack_DoListing");
-            var listerField = type.GetField("lister", BindingFlags.Static | BindingFlags.NonPublic);
-            method_DoRow = type.GetMethod("DoRow").CreateDelegate(typeof(DoRowDelegate)) as DoRowDelegate;*/
-
-            var invisbutton_instructions = new CodeInstruction[] {
-                new CodeInstruction(OpCodes.Ldloc_0),
-                new CodeInstruction(OpCodes.Ldc_I4_1),
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Widgets), nameof(Widgets.ButtonInvisible))),
-                new CodeInstruction(OpCodes.Brfalse)
-            };
-
-            var check_run_instructions = new CodeInstruction[] {
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DMM_Patch_BillStack_DoListing_Patches), nameof(DMM_Patch_BillStack_DoListing_Patches.ShouldDoNormalButton))),
-                new CodeInstruction(OpCodes.Brfalse),
-            };
-
-
-            var iteratedOver = TranspilerUtils.IterateTo(enumerator, invisbutton_instructions, out CodeInstruction[] matchedInstructions, out bool found);
-
-            if (!found)
+            var matcher = new CodeMatcher(instructions).MatchStartForward(
+                new CodeMatch(instruction => instruction.IsLdloc()),
+                new CodeMatch(OpCodes.Ldc_I4_1),
+                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Widgets), nameof(Widgets.ButtonInvisible))),
+                new CodeMatch(instruction => instruction.opcode == OpCodes.Brfalse || instruction.opcode == OpCodes.Brfalse_S));
+            if (matcher.IsInvalid)
             {
-                Log.Warning("RR: DMM_Patch_BillStack_DoListing_Patches - DoRow - failed to apply patch (instructions not found)");
-
-                foreach (var instruction in iteratedOver)
-                    yield return instruction;
-
-                goto finalize;
+                Log.WarningOnce("RR prototypes: Dubs Mint Menus recipe-row hook did not match; only Dubs prototype rows are disabled. Ordinary research remains enabled.", 1940317012);
+                return instructions;
             }
-            else
-            {
-                foreach (var instruction in iteratedOver.Take(iteratedOver.Count() - matchedInstructions.Count()))
-                    yield return instruction;
-
-                var remainingInstructions = iteratedOver.Skip(iteratedOver.Count() - matchedInstructions.Count()); 
-
-                //copy jump target
-                check_run_instructions.First(i => i.opcode == OpCodes.Brfalse).operand = remainingInstructions.First(i => i.opcode == OpCodes.Brfalse).operand;
-
-                foreach (var checkInstruction in check_run_instructions)
-                    yield return checkInstruction;
-
-                foreach (var instruction in remainingInstructions)
-                    yield return instruction;
-            }
-
-        finalize:
-            //output remaining instructions
-            while (enumerator.MoveNext())
-            {
-                yield return enumerator.Current;
-            }
+            var target = matcher.Advance(3).Operand;
+            matcher.Advance(-3).Insert(
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DMM_Patch_BillStack_DoListing_Patches), nameof(ShouldDoNormalButton))),
+                new CodeInstruction(OpCodes.Brfalse, target));
+            return matcher.InstructionEnumeration();
         }
         
-        private static bool staticHack_shouldDoNormalButton = true;
+        [ThreadStatic] private static bool suppressNormalButton;
         public static bool ShouldDoNormalButton() 
         {
-            return staticHack_shouldDoNormalButton;
+            return !suppressNormalButton;
         }
 
         private static Color CyanishTransparentBG = new Color(0.5f, 0.75f, 1f, 0.5f);
@@ -186,9 +148,15 @@ namespace PeteTimesSix.ResearchReinvented.ModCompat
         private static void DoPrototypeRow(Listing_Standard lister, HashSet<Building> selectedTables, RecipeDef recipe, Precept_Building precept_Building)
         {
             var yBefore = lister.CurHeight;
-            staticHack_shouldDoNormalButton = false;
-            method_DoRow(recipe, selectedTables, null);
-            staticHack_shouldDoNormalButton = true;
+            suppressNormalButton = true;
+            try
+            {
+                method_DoRow(recipe, selectedTables, null);
+            }
+            finally
+            {
+                suppressNormalButton = false;
+            }
             var yAfter = lister.CurHeight;
             var height = yAfter - yBefore;
 

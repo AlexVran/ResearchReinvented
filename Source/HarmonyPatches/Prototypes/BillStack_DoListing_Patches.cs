@@ -9,6 +9,7 @@ using System.Reflection;
 using Verse;
 using UnityEngine;
 using PeteTimesSix.ResearchReinvented.Extensions;
+using PeteTimesSix.ResearchReinvented.Managers;
 using Verse.AI;
 using static HarmonyLib.AccessTools;
 
@@ -66,7 +67,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
         {
 			List<FloatMenuOption> list = new List<FloatMenuOption>();
 			int index = 0;
-			foreach (RecipeDef recipe in thingForMedBills.def.AllRecipes)
+			foreach (RecipeDef recipe in PrototypeKeeper.Instance.ExperimentalSurgeryRecipesFor(pawn))
 			{
 				if (recipe.IsAvailableOnlyForPrototyping(true))
 				{
@@ -131,7 +132,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
                             {
                                 var preceptOption = new FloatMenuOption("RR_PrototypePrefix".Translate() + " " + "RecipeMake".Translate(precept_Building.def.LabelCap).CapitalizeFirst(), () => OnClick(billGiver, asThing, recipe, precept_Building), recipe.UIIconThing, extraPartWidth: 29f, extraPartOnGUI: (Rect rect) => ExtraPartOnGUI(rect, recipe, precept_Building));
                                 //var preceptOption = (new FloatMenuOption("RR_PrototypePrefix".Translate() + " " + "RecipeMake".Translate(precept_Building.def.LabelCap).CapitalizeFirst(), () => OnClick(billGiver, asThing, recipe, precept_Building), recipe.UIIconThing, MenuOptionPriority.Default, null, null, 29f, (Rect rect) => ExtraPartOnGUI(rect, recipe, precept_Building), null, true, 0));
-                                retList.Add(option);
+                                retList.Add(preceptOption);
                             }
                         }
                     }

@@ -1,80 +1,35 @@
-﻿using HarmonyLib;
+using HarmonyLib;
+using PeteTimesSix.ResearchReinvented.Domain.Prototypes;
 using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Managers;
-using PeteTimesSix.ResearchReinvented.Utilities;
 using RimWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
+using Verse.AI;
 
 namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
 {
     [HarmonyPatch(typeof(GenRecipe), "PostProcessProduct")]
     public static class GenRecipe_PostProcessProduct_Patches
     {
-
         [HarmonyPostfix]
         public static void Postfix(Thing product, RecipeDef recipeDef, Pawn worker, Precept_ThingStyle precept = null)
         {
-            var usedRecipe = recipeDef; 
-            bool isPrototype = product.def.IsAvailableOnlyForPrototyping() || (usedRecipe != null && usedRecipe.IsAvailableOnlyForPrototyping());
-            if (isPrototype)
+            if (product == null || recipeDef == null) return;
+            if (!product.def.IsAvailableOnlyForPrototyping() && !recipeDef.IsAvailableOnlyForPrototyping()) return;
+            var unfinished = worker?.CurJob?.GetTarget(TargetIndex.B).Thing as UnfinishedThing;
+            bool firstCompletion;
+            if (unfinished != null && PrototypeKeeper.Instance.IsPrototype(unfinished))
             {
-                PrototypeUtilities.DoPrototypeHealthDecrease(product, recipeDef);
-                PrototypeUtilities.DoPrototypeBadComps(product, recipeDef);
-                PrototypeKeeper.Instance.MarkAsPrototype(product);
-                PrototypeUtilities.DoPostFinishThingResearch(worker, recipeDef.WorkAmountTotal(product), product, recipeDef);
-            }
-        }
-
-        [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) 
-        {
-            var enumerator = instructions.GetEnumerator();
-
-            var finally_instructions = new CodeInstruction[] {
-                new CodeInstruction(OpCodes.Ldarg_2),
-                new CodeInstruction(OpCodes.Ldarg_1),
-                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RecipeDef), nameof(RecipeDef.workSkill))),
-                new CodeInstruction(OpCodes.Ldc_I4_1),
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(QualityUtility), nameof(QualityUtility.GenerateQualityCreatedByPawn), new Type[] { typeof(Pawn), typeof(SkillDef), typeof(bool) }))
-            };
-
-            var add_prototype_decrease_instructions = new CodeInstruction[] {
-                new CodeInstruction(OpCodes.Ldarg_2),
-                new CodeInstruction(OpCodes.Ldarg_0),
-                new CodeInstruction(OpCodes.Ldarg_1),
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PrototypeUtilities), nameof(PrototypeUtilities.DoPrototypeQualityDecreaseRecipe))),
-            };
-
-
-            var iteratedOver = TranspilerUtils.IterateTo(enumerator, finally_instructions, out CodeInstruction[] matchedInstructions, out bool found);
-            foreach (var instruction in iteratedOver)
-            {
-                yield return instruction;
-            }
-
-            if (!found)
-            {
-                Log.Warning("GenRecipe_PostProcessProduct_Patches - failed to apply patch (instructions not found)");
-                goto finalize;
+                var unfinishedKey = PrototypeKeeper.Instance.RegisterThing(unfinished, PrototypeArtifactKind.UnfinishedItem, PrototypeLifecycleState.Active, recipeDef);
+                firstCompletion = PrototypeKeeper.Instance.TransitionThing(unfinishedKey, unfinished, product, PrototypeArtifactKind.CompletedProduct, PrototypeLifecycleState.Completed, worker?.MapHeld);
             }
             else
-            {
-                foreach (var checkInstruction in add_prototype_decrease_instructions)
-                    yield return checkInstruction;
-            }
-
-        finalize:
-            //output remaining instructions
-            while (enumerator.MoveNext())
-            {
-                yield return enumerator.Current;
-            }
+                firstCompletion = PrototypeKeeper.Instance.TryRegisterThing(product, PrototypeArtifactKind.CompletedProduct, PrototypeLifecycleState.Completed, out _, recipeDef, worker?.MapHeld);
+            if (!firstCompletion) return;
+            PrototypeUtilities.DoPrototypeQualityDecreaseExisting(product, worker, recipeDef);
+            PrototypeUtilities.DoPrototypeHealthDecrease(product, recipeDef);
+            PrototypeUtilities.DoPrototypeBadComps(product, recipeDef);
+            PrototypeUtilities.DoPostFinishThingResearch(worker, recipeDef.WorkAmountTotal(product), product, recipeDef);
         }
     }
 }

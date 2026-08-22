@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using PeteTimesSix.ResearchReinvented.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace PeteTimesSix.ResearchReinvented.Managers
     {
         private ByteGrid terrainGrid;
         private ByteGrid foundationGrid;
+        private HashSet<Thing> prototypes = new HashSet<Thing>();
 
         public PrototypeTerrainGrid(Map map): base(map)
         {
@@ -23,6 +25,30 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         public bool IsTerrainPrototype(IntVec3 position)
         {
             return terrainGrid[map.cellIndices.CellToIndex(position)] != 0;
+        }
+
+        public IReadOnlyCollection<Thing> Prototypes => prototypes;
+
+        public bool IsPrototype(Thing thing)
+        {
+            if (thing == null)
+                return false;
+            var unwrapped = thing.UnwrapIfWrapped();
+            return prototypes.Contains(thing) || (unwrapped != thing && prototypes.Contains(unwrapped));
+        }
+
+        public void MarkAsPrototype(Thing thing)
+        {
+            if (thing != null)
+                prototypes.Add(thing.UnwrapIfWrapped());
+        }
+
+        public void UnmarkAsPrototype(Thing thing)
+        {
+            if (thing == null)
+                return;
+            prototypes.Remove(thing);
+            prototypes.Remove(thing.UnwrapIfWrapped());
         }
 
         public void MarkTerrainAsPrototype(IntVec3 position, TerrainDef terrain)
@@ -54,13 +80,13 @@ namespace PeteTimesSix.ResearchReinvented.Managers
         public override void ExposeData()
         {
             base.ExposeData();
-            //Scribe_References.Look(ref map, "parent");
+            if (Scribe.mode == LoadSaveMode.Saving)
+                prototypes.RemoveWhere(thing => thing == null || thing.Destroyed);
+            Scribe_Collections.Look(ref prototypes, "prototypes", LookMode.Reference);
             Scribe_Deep.Look(ref terrainGrid, "terrainGrid");
             Scribe_Deep.Look(ref foundationGrid, "foundationGrid");
-            /*MapExposeUtility.Ex(parent, 
-                (IntVec3 pos) => { return (grid[parent.cellIndices.CellToIndex(pos)] ? (ushort)1 : (ushort)0); }, 
-                (IntVec3 pos, ushort val) => { protoGrid[parent.cellIndices.CellToIndex(pos)] = (val != 0 ? true : false); }, 
-                "protoGrid");*/
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+                prototypes ??= new HashSet<Thing>();
         }
 
         public void DebugDrawOnMap()

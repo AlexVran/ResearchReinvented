@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using PeteTimesSix.ResearchReinvented.Extensions;
+using PeteTimesSix.ResearchReinvented.Domain.Prototypes;
 using PeteTimesSix.ResearchReinvented.Managers;
 using RimWorld;
 using System;
@@ -14,17 +15,18 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
     [HarmonyPatch(typeof(Blueprint), nameof(Blueprint.TryReplaceWithSolidThing))]
     public static class Blueprint_TryReplaceWithSolidThing_Patches
     {
-        [HarmonyPostfix] public static void Postfix(Blueprint __instance, Pawn workerPawn, ref Thing createdThing, ref bool jobEnded) 
+        [HarmonyPrefix]
+        public static void Prefix(Blueprint __instance, out PrototypeArtifactKey __state)
         {
-            //Log.Message($"intercepting {__instance.LabelCap} turning into {createdThing.LabelCap} (involved pawn: {workerPawn.LabelCap})");
-            if(createdThing is Frame frame)
-            {
-                var buildable = frame.def.entityDefToBuild;
-                if(buildable.IsAvailableOnlyForPrototyping(true))
-                {
-                    PrototypeKeeper.Instance.MarkAsPrototype(createdThing);
-                }
-            }
+            __state = null;
+            if (__instance.def.entityDefToBuild.IsAvailableOnlyForPrototyping(true))
+                __state = PrototypeKeeper.Instance.RegisterThing(__instance, PrototypeArtifactKind.Blueprint, PrototypeLifecycleState.Active);
+        }
+
+        [HarmonyPostfix] public static void Postfix(Blueprint __instance, Pawn workerPawn, ref Thing createdThing, ref bool jobEnded, PrototypeArtifactKey __state)
+        {
+            if (__state != null && createdThing is Frame)
+                PrototypeKeeper.Instance.TransitionThing(__state, __instance, createdThing, PrototypeArtifactKind.Frame, PrototypeLifecycleState.Active);
         }
     }
 }

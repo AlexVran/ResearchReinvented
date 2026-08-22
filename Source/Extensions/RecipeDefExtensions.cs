@@ -15,32 +15,6 @@ namespace PeteTimesSix.ResearchReinvented.Extensions
 {
     public static class RecipeDefExtensions
 	{
-		public static ResearchProjectDef cacheBuiltForProject = null;
-		public static Dictionary<RecipeDef, ResearchOpportunity> _prototypeOpportunitiesMappedCache = new Dictionary<RecipeDef, ResearchOpportunity>();
-
-		public static Dictionary<RecipeDef, ResearchOpportunity> PrototypeOpportunitiesMappedCache
-		{
-			get
-			{
-				if (cacheBuiltForProject != Find.ResearchManager.GetProject())
-				{
-					_prototypeOpportunitiesMappedCache.Clear();
-                    foreach (var op in PrototypeUtilities.PrototypeOpportunities)
-                    {
-                        if (op.requirement is ROComp_RequiresRecipe requiresRecipe)
-						{
-							foreach(var altRecipe in requiresRecipe.AllRecipes)
-                            {
-                                _prototypeOpportunitiesMappedCache[altRecipe] = op;
-                            }
-						}
-                    }
-					cacheBuiltForProject = Find.ResearchManager.GetProject();
-				}
-				return _prototypeOpportunitiesMappedCache;
-			}
-		}
-
 		public static HashSet<ResearchProjectDef> AllResearchPrerequisites(this RecipeDef recipe)
 		{
 			HashSet<ResearchProjectDef> prerequisites = new HashSet<ResearchProjectDef>();
@@ -67,10 +41,7 @@ namespace PeteTimesSix.ResearchReinvented.Extensions
                     return false;
                 if (unfinishedPreregs.Any((ResearchProjectDef r) => Find.ResearchManager.GetProject() != r))
                     return false;
-				if (!PrototypeOpportunitiesMappedCache.ContainsKey(def))
-					return false;
-
-                var opportunity = PrototypeOpportunitiesMappedCache[def];
+                var opportunity = PrototypeKeeper.Instance.GetPrototypeOpportunity(def);
                 if (opportunity == null)
                     return false;
                 if (!evenIfFinished)

@@ -14,6 +14,14 @@
     <Compile Include="..\Opportunities\LegacyOpportunitySemantics.cs" Link="Production\LegacyOpportunitySemantics.cs" />
     <Compile Include="..\Utilities\ScopedServiceOverride.cs" Link="Production\ScopedServiceOverride.cs" />
     <None Include="..\..\tests\fixtures\**\*.json" Link="fixtures\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\HarmonyPatches\Prototypes\**\*.cs" Link="contracts\prototypes\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Managers\PrototypeKeeper.cs" Link="contracts\runtime\PrototypeKeeper.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Managers\PrototypeTerrainGrid.cs" Link="contracts\runtime\PrototypeTerrainGrid.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Managers\PrototypeSaveData.cs" Link="contracts\runtime\PrototypeSaveData.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Extensions\BuildableDefExtensions.cs" Link="contracts\runtime\BuildableDefExtensions.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Extensions\RecipeDefExtensions.cs" Link="contracts\runtime\RecipeDefExtensions.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\Extensions\ThingDefExtensions.cs" Link="contracts\runtime\ThingDefExtensions.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\ModCompat\DubsMintMenus\DMM_Patch_BillStack_DoListing_Patches.cs" Link="contracts\compat\DMM_Patch_BillStack_DoListing_Patches.cs" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0" PrivateAssets="all" />

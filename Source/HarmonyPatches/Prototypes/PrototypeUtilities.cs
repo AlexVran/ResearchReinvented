@@ -37,9 +37,6 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
         private static float PROTOTYPE_FUEL_REFUELABLE_MULTIPLIER_MIN = 0.1f;
         private static float PROTOTYPE_FUEL_REFUELABLE_MULTIPLIER_MAX = 0.5f;
 
-        private static ResearchProjectDef cacheBuiltForProject = null;
-        private static ResearchOpportunity[] _prototypeOpportunitiesCache = Array.Empty<ResearchOpportunity>();
-
         private static FieldRef<CompApparelVerbOwner_Charged, int> CompApparelVerbOwner_Charged_remainingCharges;
 
         static PrototypeUtilities()
@@ -51,20 +48,13 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
         {
             get 
 			{
-				if (cacheBuiltForProject != Find.ResearchManager.GetProject())
-				{
-                    _prototypeOpportunitiesCache = ResearchOpportunityManager.Instance
-                        .GetFilteredOpportunities(null, HandlingMode.Special_Prototype).ToArray();
-					cacheBuiltForProject = Find.ResearchManager.GetProject();
-				}
-				return _prototypeOpportunitiesCache;
+				return PrototypeKeeper.Instance.PrototypeOpportunities;
 			}
 		}
 
         public static void ClearPrototypeOpportunityCache()
         {
-            cacheBuiltForProject = null;
-            _prototypeOpportunitiesCache = Array.Empty<ResearchOpportunity>();
+            PrototypeKeeper.Instance.InvalidateAvailability();
         }
 
 
@@ -168,6 +158,16 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
                 return adjusted;
             }
             return category;
+        }
+
+        public static void DoPrototypeQualityDecreaseExisting(Thing product, Pawn worker, RecipeDef usedRecipe)
+        {
+            var quality = product.TryGetComp<CompQuality>();
+            if (quality == null)
+                return;
+            var adjusted = DoPrototypeQualityDecreaseThing(quality.Quality, worker, product, usedRecipe);
+            if (adjusted != quality.Quality)
+                quality.SetQuality(adjusted, ArtGenerationContext.Colony);
         }
 
         public static void DoPostFailToFinishThingResearch(Pawn worker, float totalWork, float doneWork, ThingDef productDef, RecipeDef usedRecipe)

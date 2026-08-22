@@ -15,33 +15,6 @@ namespace PeteTimesSix.ResearchReinvented.Extensions
 {
     public static class ThingDefExtensions
     {
-        public static ResearchProjectDef cacheBuiltForProject = null;
-        public static Dictionary<ThingDef, ResearchOpportunity> _prototypeOpportunitiesMappedCache = new Dictionary<ThingDef, ResearchOpportunity>();
-
-
-        public static Dictionary<ThingDef, ResearchOpportunity> PrototypeOpportunitiesMappedCache
-        {
-            get
-            {
-                if (cacheBuiltForProject != Find.ResearchManager.GetProject())
-                {
-                    _prototypeOpportunitiesMappedCache.Clear();
-                    foreach (var op in PrototypeUtilities.PrototypeOpportunities)
-                    {
-                        if (op.requirement is ROComp_RequiresThing requiresThing)
-                        {
-                            foreach(var altThing in requiresThing.AllThings)
-                            {
-                                _prototypeOpportunitiesMappedCache[altThing] = op;
-                            }
-                        }
-                    }
-                    cacheBuiltForProject = Find.ResearchManager.GetProject();
-                }
-                return _prototypeOpportunitiesMappedCache;
-            }
-        }
-
         public static bool IsTrulyRawFood(this ThingDef x)
         {
             return x.IsNutritionGivingIngestible && !x.IsCorpse && x.ingestible.HumanEdible && x.ingestible.preferability < FoodPreferability.MealAwful;
@@ -81,10 +54,7 @@ namespace PeteTimesSix.ResearchReinvented.Extensions
                     return false;
                 if (unfinishedPreregs.Any((ResearchProjectDef r) => Find.ResearchManager.GetProject() != r))
                     return false;
-                if (!PrototypeOpportunitiesMappedCache.ContainsKey(def))
-                    return false;
-
-                var opportunity = PrototypeOpportunitiesMappedCache[def];
+                var opportunity = PrototypeKeeper.Instance.GetPrototypeOpportunity(def);
                 if (opportunity == null)
                     return false;
                 if (!evenIfFinished)

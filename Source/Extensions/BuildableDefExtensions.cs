@@ -14,35 +14,6 @@ namespace PeteTimesSix.ResearchReinvented.Extensions
 {
 	public static class BuildableDefExtensions
 	{
-		public static ResearchProjectDef cacheBuiltForProject = null; 
-		public static Dictionary<BuildableDef, ResearchOpportunity> _prototypeOpportunitiesMappedCache = new Dictionary<BuildableDef, ResearchOpportunity>();
-
-		public static Dictionary<BuildableDef, ResearchOpportunity> PrototypeOpportunitiesMappedCache
-        {
-            get
-			{
-				if (cacheBuiltForProject != Find.ResearchManager.GetProject())
-				{
-					_prototypeOpportunitiesMappedCache.Clear();
-                    foreach(var op in PrototypeUtilities.PrototypeOpportunities)
-                    {
-                        if(op.requirement is ROComp_RequiresThing requiresThing)
-                        {
-                            foreach(var thing in requiresThing.AllThings)
-                                _prototypeOpportunitiesMappedCache[thing] = op;
-                        }
-                        else if (op.requirement is ROComp_RequiresTerrain requiresTerrain)
-                        {
-                            foreach (var terrain in requiresTerrain.AllTerrains)
-                                _prototypeOpportunitiesMappedCache[terrain] = op;
-                        }
-                    }
-					cacheBuiltForProject = Find.ResearchManager.GetProject();
-				}
-				return _prototypeOpportunitiesMappedCache;
-			}
-        }
-
 		public static bool IsAvailableOnlyForPrototyping(this BuildableDef def, bool evenIfFinished)
         {
             if (def.researchPrerequisites != null && def.researchPrerequisites.Count > 0)
@@ -52,10 +23,7 @@ namespace PeteTimesSix.ResearchReinvented.Extensions
                     return false;
                 if (unfinishedPreregs.Any((ResearchProjectDef r) => Find.ResearchManager.GetProject() != r))
                     return false;
-                if (!PrototypeOpportunitiesMappedCache.ContainsKey(def))
-                    return false;
-
-                var opportunity = PrototypeOpportunitiesMappedCache[def];
+                var opportunity = PrototypeKeeper.Instance.GetPrototypeOpportunity(def);
 
                 if (opportunity == null)
                     return false;

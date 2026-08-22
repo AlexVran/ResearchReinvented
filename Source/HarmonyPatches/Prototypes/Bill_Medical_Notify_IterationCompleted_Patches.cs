@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Utilities;
+using PeteTimesSix.ResearchReinvented.Domain.Prototypes;
+using PeteTimesSix.ResearchReinvented.Managers;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
             if (isPrototype)
             {
                 PrototypeUtilities.DoPostFinishSurgeryResearch(__instance.GiverPawn, billDoer, recipe.WorkAmountTotal(null), recipe);
+                PrototypeKeeper.Instance.FinishBill(__instance, __instance.GiverPawn, PrototypeLifecycleState.Completed);
             }
 		}
 	}

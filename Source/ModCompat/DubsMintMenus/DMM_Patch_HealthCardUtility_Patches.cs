@@ -12,6 +12,7 @@ using PeteTimesSix.ResearchReinvented.Extensions;
 using System.Reflection.Emit;
 using PeteTimesSix.ResearchReinvented.Utilities;
 using PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes;
+using PeteTimesSix.ResearchReinvented.Managers;
 using Verse.Sound;
 using static HarmonyLib.AccessTools;
 
@@ -103,57 +104,46 @@ namespace PeteTimesSix.ResearchReinvented.ModCompat
             }
         }
 
-        private static int lastCacheFrame = 0;
-        private static Pawn cachedPawn = null;
-        private static List<BillEntry> BillsToListCache { get; set; } = new List<BillEntry>();
-
         private static void AddPrototypeRows(Listing_Standard lister, Pawn pawn, Thing thingForMedBills) 
         {
             Pawn pawn2 = thingForMedBills as Pawn;
-            lastCacheFrame--;
-            if (cachedPawn != pawn || lastCacheFrame < 0)
+            var billsToList = new List<BillEntry>();
+            foreach (RecipeDef recipe in PrototypeKeeper.Instance.ExperimentalSurgeryRecipesFor(pawn2).Where((RecipeDef r) => r.IsAvailableOnlyForPrototyping(true) && r.AvailableOnNow(pawn2)).OrderByDescending((RecipeDef p) => p.label).ToList())
             {
-			    lastCacheFrame = 500;
-			    cachedPawn = pawn;
-			    BillsToListCache.Clear();
-                foreach (RecipeDef recipe in thingForMedBills.def.AllRecipes.Where((RecipeDef r) => r.IsAvailableOnlyForPrototyping(true) && r.AvailableOnNow(pawn2)).OrderByDescending((RecipeDef p) => p.label).ToList())
+                try
                 {
-                    try
+                    List<ThingDef> list = recipe.PotentiallyMissingIngredients(null, thingForMedBills.Map).ToList();
+                    if (list.Any((ThingDef x) => x.isTechHediff) || list.Any((ThingDef x) => x.IsDrug) || (list.Any() && recipe.dontShowIfAnyIngredientMissing))
                     {
-                        List<ThingDef> list = recipe.PotentiallyMissingIngredients(null, thingForMedBills.Map).ToList();
-                        if (list.Any((ThingDef x) => x.isTechHediff) || list.Any((ThingDef x) => x.IsDrug) || (list.Any() && recipe.dontShowIfAnyIngredientMissing))
+                        continue;
+                    }
+                    if (recipe.targetsBodyPart)
+                    {
+                        foreach (BodyPartRecord bodyPart in recipe.Worker.GetPartsToApplyOn(pawn, recipe))
                         {
-                            continue;
-                        }
-                        if (recipe.targetsBodyPart)
-                        {
-                            foreach (BodyPartRecord bodyPart in recipe.Worker.GetPartsToApplyOn(pawn, recipe))
+                            if (recipe.AvailableOnNow(pawn, bodyPart))
                             {
-                                if (recipe.AvailableOnNow(pawn, bodyPart))
+                                string text = recipe.Worker.GetLabelWhenUsedOn(pawn2, bodyPart).CapitalizeFirst();
+                                if (bodyPart != null && !recipe.hideBodyPartNames)
                                 {
-                                    string text = recipe.Worker.GetLabelWhenUsedOn(pawn2, bodyPart).CapitalizeFirst();
-                                    if (bodyPart != null && !recipe.hideBodyPartNames)
-                                    {
-                                        text = text + "\n(" + bodyPart.Label + ")";
-                                    }
-                                    BillsToListCache.Add(new BillEntry(text, recipe, bodyPart));
+                                    text = text + "\n(" + bodyPart.Label + ")";
                                 }
+                                billsToList.Add(new BillEntry(text, recipe, bodyPart));
                             }
                         }
-                        else
-                        {
-                            string s = recipe.Worker.GetLabelWhenUsedOn(pawn2, null).CapitalizeFirst();
-                            BillsToListCache.Add(new BillEntry(s, recipe, null));
-                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        //Widgets.Label(rect, "Oops, something went wrong!");
-                        Log.Warning(ex.ToString());
+                        string s = recipe.Worker.GetLabelWhenUsedOn(pawn2, null).CapitalizeFirst();
+                        billsToList.Add(new BillEntry(s, recipe, null));
                     }
                 }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex.ToString());
+                }
             }
-            foreach (BillEntry billEntry in BillsToListCache.Where((BillEntry x) => parc(x.def, x.label)))
+            foreach (BillEntry billEntry in billsToList.Where((BillEntry x) => parc(x.def, x.label)))
             {
                 try
                 {

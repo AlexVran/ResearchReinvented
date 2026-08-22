@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Managers;
+using PeteTimesSix.ResearchReinvented.Domain.Prototypes;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
                 {
                     if (ResearchReinvented_Debug.debugPrintouts)
                         Log.Message($"Marking {unfinishedThing} as prototype");
-                    PrototypeKeeper.Instance.MarkAsPrototype(unfinishedThing);
+                    PrototypeKeeper.Instance.RegisterThing(unfinishedThing, PrototypeArtifactKind.UnfinishedItem, PrototypeLifecycleState.Active, recipeDef, actor.MapHeld);
                 }
             });
         }

@@ -50,33 +50,33 @@ namespace PeteTimesSix.ResearchReinvented.HarmonyPatches.Prototypes
 
             CodeInstruction[] toInsert = new CodeInstruction[]
             {
-                new CodeInstruction(OpCodes.Ldloc_1),
-                new CodeInstruction(OpCodes.Ldloc_0),
+                new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JobDriver_ConstructFinishFrame_MakeNewToils_Patches), nameof(PrototypeFailureChanceIncrease)))
             };
 
             codeMatcher.MatchEndForward(toMatch);
-            codeMatcher.Insert(toInsert);
-            codeMatcher.End();
-
-            if(codeMatcher.IsInvalid) 
+            if(codeMatcher.IsInvalid)
             {
-                Log.Warning("RR: failed to apply transpiler on JobDriver_ConstructFinishFrame_MakeNewToils_initAction!");
+                Log.WarningOnce("RR prototypes: construction failure-chance hook did not match the RimWorld method shape; only the extra prototype failure chance is disabled. Ordinary research remains enabled.", 1940317011);
                 return instructions;
             }
-            else
-                return codeMatcher.InstructionEnumeration();
+            codeMatcher.Insert(toInsert);
+            return codeMatcher.InstructionEnumeration();
         }
 
-        public static float PrototypeFailureChanceIncrease(float statValue, Frame frame, Pawn pawn) 
+        public static float PrototypeFailureChanceIncrease(float statValue, object closure)
         {
-            if(PrototypeKeeper.Instance.IsPrototype(frame))
+            var driver = closure as JobDriver_ConstructFinishFrame
+                ?? closure?.GetType().GetFields(AccessTools.all)
+                    .Select(field => field.GetValue(closure)).OfType<JobDriver_ConstructFinishFrame>().FirstOrDefault();
+            var frame = driver?.job?.GetTarget(TargetIndex.A).Thing as Frame;
+            if (frame == null)
             {
-                float statValueModified = statValue * 0.75f;
-                return statValueModified;
+                PrototypeKeeper.Instance.DisableFeature("construction-failure-chance",
+                    "could not resolve the construction frame from RimWorld's generated closure; only the extra prototype failure chance is disabled");
+                return statValue;
             }
-            return statValue;
-            //Log.Message($"Beep! {pawn.LabelCap} is building {frame.LabelCap} fail chance stat is: {statValue}, modified: {statValueModified}");
+            return PrototypeKeeper.Instance.IsPrototype(frame) ? statValue * 0.75f : statValue;
         }
     }
 }
