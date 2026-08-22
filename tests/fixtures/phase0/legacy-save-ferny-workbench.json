@@ -1,0 +1,1750 @@
+{
+  "schema": "research-reinvented-legacy-save-baseline-v1",
+  "serializationNotes": {
+    "forcedFreebieIsNotSerializedByLegacyCode": true,
+    "forcedRareIsOnlyWrittenWhenTrue": true,
+    "relationDefaultsToDirectWhenAbsent": true,
+    "runtimeRareAndFreebieMayAlsoComeFromLoadedDefModExtensions": true
+  },
+  "settings": {
+    "settings": {
+      "activePreset": "SettingsPreset_RR_Default",
+      "categorySettingChanges": [
+        {
+          "availableAtOverallProgress": "0.649999976~1",
+          "category": "Theory"
+        },
+        {
+          "category": "Books"
+        },
+        {
+          "category": "Prototyping"
+        },
+        {
+          "category": "Clinical",
+          "importanceMultiplier": 0.800000012,
+          "importanceMultiplierCounted": 0.560000002
+        },
+        {
+          "category": "Tooling"
+        },
+        {
+          "category": "ReverseEngineering"
+        },
+        {
+          "category": "ForwardEngineering"
+        },
+        {
+          "category": "Logistics"
+        },
+        {
+          "category": "Geology"
+        },
+        {
+          "category": "Biology",
+          "importanceMultiplier": 0.800000012,
+          "importanceMultiplierCounted": 0.639999986
+        },
+        {
+          "category": "Chemistry",
+          "importanceMultiplier": 0.600000024,
+          "importanceMultiplierCounted": 0.479999989
+        },
+        {
+          "category": "Gastronomy"
+        },
+        {
+          "category": "Material"
+        },
+        {
+          "category": "Social"
+        }
+      ],
+      "changeTicker": 3
+    },
+    "settingsSha256": "a3d11125fccd19a0a4d38c34bdc23e53ad1a64bb54538605cebfec1d435af6e0"
+  },
+  "source": {
+    "activeModCount": 1373,
+    "activeModIdsSha256": "d21f17cb49a647dd00c80c66006f508e763b029dcd984bf285bec805ec586af3",
+    "relevantMods": [
+      "brrainz.harmony",
+      "ludeon.rimworld",
+      "petetimessix.researchreinvented",
+      "aw.researchreinvented.retextured"
+    ],
+    "saveBytes": 66561430,
+    "saveSha256": "cf178b44324070025800330e802bb3df35ccbe75e826c9e2b5ad72b41dd31f81"
+  },
+  "state": {
+    "categoryStores": [
+      {
+        "category": "Theory",
+        "project": "Ferny_Workbench",
+        "researchPoints": 1
+      },
+      {
+        "category": "Books",
+        "project": "Ferny_Workbench",
+        "researchPoints": 200
+      },
+      {
+        "category": "Social",
+        "project": "Ferny_Workbench",
+        "researchPoints": 120
+      },
+      {
+        "category": "ReverseEngineering",
+        "project": "Ferny_Workbench",
+        "researchPoints": 100
+      },
+      {
+        "category": "ForwardEngineering",
+        "project": "Ferny_Workbench",
+        "researchPoints": 100
+      },
+      {
+        "category": "Material",
+        "project": "Ferny_Workbench",
+        "researchPoints": 100
+      },
+      {
+        "category": "Gastronomy",
+        "project": "Ferny_Workbench",
+        "researchPoints": 100
+      },
+      {
+        "category": "Prototyping",
+        "project": "Ferny_Workbench",
+        "researchPoints": 120
+      }
+    ],
+    "changeTicker": 4,
+    "generatedProjects": [
+      "Ferny_Workbench"
+    ],
+    "opportunities": [
+      {
+        "category": "Theory",
+        "currentProgress": 47.2683563,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 89,
+        "maximumProgress": 1,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": null,
+          "kind": "ROComp_RequiresNothing"
+        },
+        "type": "BasicResearch"
+      },
+      {
+        "category": "Books",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 90,
+        "maximumProgress": 200,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "projectDef": "Ferny_Workbench"
+          },
+          "kind": "ROComp_RequiresSchematicWithProject"
+        },
+        "type": "SchematicStudy"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 40,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 91,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_141"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "Brainstorming"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 92,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_72"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 93,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_73"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 94,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_74"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 95,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_75"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 96,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_76"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 97,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_77"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 98,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_78"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 99,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_79"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 100,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_80"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 101,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_81"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 102,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_82"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 103,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_83"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 104,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_84"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 105,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_85"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 106,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_86"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 107,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_87"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 108,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_88"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 109,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_89"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.124266982,
+        "legacyLoadId": 110,
+        "maximumProgress": 4.97067928,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_90"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 111,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_91"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 112,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_92"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 113,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_93"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 114,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_94"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 115,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_95"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 116,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_96"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 117,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_97"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 118,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_98"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 119,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_99"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 120,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_100"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 121,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_101"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.124266982,
+        "legacyLoadId": 122,
+        "maximumProgress": 4.97067928,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_102"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 123,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_103"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 124,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_104"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 125,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_105"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 126,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_106"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 127,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_107"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 128,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_108"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 129,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_109"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 130,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_110"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 131,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_111"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 132,
+        "maximumProgress": 40,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_112"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 133,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_113"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 134,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_114"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 135,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_115"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 136,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_116"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 137,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_117"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 138,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_118"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 139,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_119"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 140,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_120"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 141,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_121"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.303413063,
+        "legacyLoadId": 142,
+        "maximumProgress": 12.1365223,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_122"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.124266982,
+        "legacyLoadId": 143,
+        "maximumProgress": 4.97067928,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_123"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.124266982,
+        "legacyLoadId": 144,
+        "maximumProgress": 4.97067928,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_125"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 145,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_127"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 146,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_130"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 147,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_131"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.721347511,
+        "legacyLoadId": 148,
+        "maximumProgress": 28.8539009,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_132"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 149,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_135"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 150,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_136"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 151,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_137"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 152,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_138"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 153,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_139"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 154,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_140"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 155,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_142"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.180336878,
+        "legacyLoadId": 156,
+        "maximumProgress": 7.21347523,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "faction": "Faction_143"
+          },
+          "kind": "ROComp_RequiresFaction"
+        },
+        "type": "GainFactionKnowledge"
+      },
+      {
+        "category": "Social",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 0.5,
+        "legacyLoadId": 157,
+        "maximumProgress": 20,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": null,
+          "kind": "ROComp_RequiresFactionlessPawn"
+        },
+        "type": "GainFactionlessKnowledge"
+      },
+      {
+        "category": "ReverseEngineering",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 158,
+        "maximumProgress": 100,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "SIMILAR",
+            "targetDef": "DankPyon_Workbench"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 12.5,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 159,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "WoodLog"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 160,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "TWRL_Resource_FairyWood"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 161,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "AB_CrystalWood"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 162,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "AB_MushroomWoodLog"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 163,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Romy_Writhewood"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 164,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "GU_RedWood"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 165,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "DankPyon_DarkWood"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Gastronomy",
+        "currentProgress": 100,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 166,
+        "maximumProgress": 100,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "DankPyon_Bone"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseFuelFood"
+      },
+      {
+        "category": "Material",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 167,
+        "maximumProgress": 12.5,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Grimstone_Ivory"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "AnalyseIngredients"
+      },
+      {
+        "category": "Prototyping",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 168,
+        "maximumProgress": 120,
+        "project": "Ferny_Workbench",
+        "relation": "Direct",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "DankPyon_Workbench"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "PrototypeConstruction"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 11.1111116,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 169,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "TableCircular"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 11.1111116,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 170,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "VFE_CoffeeTable"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 11.1111116,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 171,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "DankPyon_RusticCounter1x3c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 172,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "DankPyon_RusticRoundTable2x2c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 173,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Table_1x1c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 174,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Table1x2c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 175,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Table2x2c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 0,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 176,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Table2x4c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      },
+      {
+        "category": "ForwardEngineering",
+        "currentProgress": 11.1111116,
+        "forcedFreebiePersisted": null,
+        "forcedRarePersisted": null,
+        "importance": 1,
+        "legacyLoadId": 177,
+        "maximumProgress": 11.1111116,
+        "project": "Ferny_Workbench",
+        "relation": "Ancestor",
+        "requirement": {
+          "facts": {
+            "altsMode": "EQUIVALENT",
+            "targetDef": "Table3x3c"
+          },
+          "kind": "ROComp_RequiresThing"
+        },
+        "type": "Analyse"
+      }
+    ],
+    "opportunityManagerProject": "Ferny_Workbench",
+    "prototypeReferenceIds": [],
+    "researchManagerProject": "Ferny_Workbench"
+  }
+}

@@ -1,0 +1,545 @@
+{
+  "gameVersion": "1.6.4871 rev591",
+  "loadedDefs": [
+    {
+      "count": 31,
+      "defType": "FactionDef"
+    },
+    {
+      "count": 446,
+      "defType": "RecipeDef"
+    },
+    {
+      "count": 174,
+      "defType": "ResearchProjectDef"
+    },
+    {
+      "count": 384,
+      "defType": "TerrainDef"
+    },
+    {
+      "count": 3424,
+      "defType": "ThingDef"
+    }
+  ],
+  "packageIds": [
+    "Argon.CoreLib",
+    "Ludeon.RimWorld",
+    "Ludeon.RimWorld.Anomaly",
+    "Ludeon.RimWorld.Biotech",
+    "Ludeon.RimWorld.Ideology",
+    "Ludeon.RimWorld.Odyssey",
+    "Ludeon.RimWorld.Royalty",
+    "PeteTimesSix.ResearchReinvented",
+    "brrainz.harmony",
+    "ferny.ReplaceLib",
+    "ferny.progressionkitchen",
+    "ferny.progressionproduction",
+    "local.researchreinvented.phase0collector"
+  ],
+  "profile": "argonic-content-compat",
+  "projectDigest": "62a0b75f7eba2c0ffe13bb30621337f67b1a9de22f23425e8b33b1379e5c4142",
+  "projects": [
+    {
+      "baseCost": 500,
+      "categoryStores": [
+        {
+          "category": "Books",
+          "researchPoints": 250
+        },
+        {
+          "category": "ForwardEngineering",
+          "researchPoints": 208.333328
+        },
+        {
+          "category": "Material",
+          "researchPoints": 208.333328
+        },
+        {
+          "category": "Prototyping",
+          "researchPoints": 250
+        },
+        {
+          "category": "ReverseEngineering",
+          "researchPoints": 208.333328
+        },
+        {
+          "category": "Social",
+          "researchPoints": 250
+        },
+        {
+          "category": "Theory",
+          "researchPoints": 1
+        }
+      ],
+      "defName": "Ferny_ButcherTable",
+      "modPackageId": "ferny.progressionkitchen",
+      "opportunities": [
+        {
+          "category": "ReverseEngineering",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "direct analysis (unhaulable)",
+          "importance": 1,
+          "maximumProgress": 208.333328,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [
+              "AncientTableButcher"
+            ],
+            "canonicalIdentity": "TableButcher",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "Analyse"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Bioferrite",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Gold",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Obsidian",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Plasteel",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Silver",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Steel",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Uranium",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Material",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "ingre. analysis",
+          "importance": 1,
+          "maximumProgress": 26.041666,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "WoodLog",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "AnalyseIngredients"
+        },
+        {
+          "category": "Theory",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "Project",
+          "importance": 1,
+          "maximumProgress": 1,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "none",
+            "kind": "ROComp_RequiresNothing"
+          },
+          "type": "BasicResearch"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "player faction",
+          "importance": 0.303413063,
+          "maximumProgress": 25.2844219,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "PlayerColony",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "Brainstorming"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Ancients",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "AncientsHostile",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.124266982,
+          "maximumProgress": 10.3555822,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Empire",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "HoraxCult",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.303413063,
+          "maximumProgress": 25.2844219,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "OutlanderCivil",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.303413063,
+          "maximumProgress": 25.2844219,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "OutlanderRoughPig",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "PirateWaster",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "PirateYttakin",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Salvagers",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 0.180336878,
+          "maximumProgress": 15.0280733,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "TradersGuild",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 1,
+          "maximumProgress": 83.3333359,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "TribeCivil",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 1,
+          "maximumProgress": 83.3333359,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "TribeRoughNeanderthal",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "faction",
+          "importance": 1,
+          "maximumProgress": 83.3333359,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "TribeSavageImpid",
+            "kind": "ROComp_RequiresFaction"
+          },
+          "type": "GainFactionKnowledge"
+        },
+        {
+          "category": "Social",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "no faction",
+          "importance": 0.5,
+          "maximumProgress": 41.6666679,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "factionless-pawn",
+            "kind": "ROComp_RequiresFactionlessPawn"
+          },
+          "type": "GainFactionlessKnowledge"
+        },
+        {
+          "category": "Prototyping",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "prototype (unhaulable)",
+          "importance": 1,
+          "maximumProgress": 250,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "TableButcher",
+            "kind": "ROComp_RequiresThing"
+          },
+          "type": "PrototypeConstruction"
+        },
+        {
+          "category": "Books",
+          "currentProgress": 0,
+          "freebie": false,
+          "generationSource": "Schematic",
+          "importance": 1,
+          "maximumProgress": 250,
+          "project": "Ferny_ButcherTable",
+          "rare": false,
+          "relation": "Direct",
+          "requirement": {
+            "alternates": [],
+            "canonicalIdentity": "Ferny_ButcherTable",
+            "kind": "ROComp_RequiresSchematicWithProject"
+          },
+          "type": "SchematicStudy"
+        }
+      ],
+      "opportunityCount": 27,
+      "opportunityDigest": "5aefeba3845eab6bc6df5221bbc70ecf78baeebee48ef282bbc846750c42e5d5"
+    }
+  ],
+  "schema": "research-reinvented-legacy-generator-fixture-v1"
+}
