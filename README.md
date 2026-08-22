@@ -1,8 +1,7 @@
 
 # Research Reinvented    [![Badge License]][License]   [![Badge Mod]][RimWorld]
 
-*Adds a more interesting research system.*
-
+This is a vibe coded rewrite of Research Reinvented. I was curious what Codex could do.
 <br>
 
 ## Dependencies
