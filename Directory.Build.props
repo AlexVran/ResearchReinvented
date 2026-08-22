@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <ModName>Research Reinvented</ModName>
+    <ModFileName>ResearchReinvented</ModFileName>
+    <PackageId>PeteTimesSix.ResearchReinvented</PackageId>
+    <ModVersion>1.6</ModVersion>
+    <SupportedRimWorldVersion>1.6</SupportedRimWorldVersion>
+    <Authors>PeteTimesSix</Authors>
+    <Company>PeteTimesSix</Company>
+    <RepositoryUrl>https://github.com/PeteTimesSix/ResearchReinvented</RepositoryUrl>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)artifacts\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(MSBuildThisFileDirectory)Source\obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

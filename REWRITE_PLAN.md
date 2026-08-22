@@ -31,8 +31,8 @@ research-point behavior until the new generator and state model are proven.
 Unless deliberately changed during Phase 0, use these decisions:
 
 - RimWorld 1.6 is the active development target.
-- Existing 1.3-1.5 payloads remain frozen rather than sharing the rewritten
-  assembly.
+- RimWorld 1.3-1.5 payloads are removed from the rewrite; the original checkout
+  remains the historical source for them.
 - The package ID and public XML `defName`s remain stable.
 - Existing saves are supported through a versioned migration layer.
 - Opportunity generation uses static loaded-Def facts. Current-map feasibility
@@ -159,8 +159,7 @@ Create a reliable development shell without changing player behavior.
 - Restore and quiet Debug/Release builds.
 - Compare the old and new DLL identity and installed payload layout.
 - Verify that a normal build performs no deployment.
-- Run the shared repository validator and document intentional frozen-version
-  exceptions.
+- Run the shared repository validator and verify that only 1.6 is shipped.
 
 ### Exit criteria
 

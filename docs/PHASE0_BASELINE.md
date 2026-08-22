@@ -15,8 +15,8 @@ user-owned rewrite plan is read-only input to this worktree.
 
 - RimWorld 1.6 is the active rewrite target. The captured runtime is
   `1.6.4871 rev591`.
-- Existing 1.3, 1.4, and 1.5 payloads remain frozen and keep loading their
-  current assemblies.
+- Superseded in Phase 1 by the owner's decision to make the rewrite 1.6-only.
+  The original checkout remains the historical source for 1.3, 1.4, and 1.5.
 - `PeteTimesSix.ResearchReinvented` and existing public XML `defName` values
   remain stable. The rewrite is a replacement build, not a second mod intended
   to run alongside the original.
@@ -39,10 +39,10 @@ user-owned rewrite plan is read-only input to this worktree.
 ### Payload and loading
 
 - The authoritative mod payload is nested under `ResearchReinvented/`.
-- `ResearchReinvented/LoadFolders.xml` loads the payload root plus the active
+- Before Phase 1, `ResearchReinvented/LoadFolders.xml` loaded the nested payload root plus the active
   version folder. Combat Extended and Vanilla Expanded Framework Architect
   receive version-specific compatibility folders in 1.4 through 1.6.
-- The 1.6 assembly is `ResearchReinvented/v1.6/Assemblies/ResearchReinvented.dll`.
+- Before Phase 1, the 1.6 assembly was `ResearchReinvented/v1.6/Assemblies/ResearchReinvented.dll`.
 - The mod constructor applies all Harmony patches. Post-definition startup then
   scans loaded databases and prepares alternates and research-kit data.
 
@@ -51,7 +51,7 @@ user-owned rewrite plan is read-only input to this worktree.
 - The current project targets `net472`, uses C# 11, embeds debug symbols, and
   references `Krafs.Rimworld.Ref 1.6.4503-beta`, `Lib.Harmony 2.3.6`, and the
   .NET Framework reference assemblies package.
-- A normal Windows build invokes `ResearchReinvented/Source/Install.bat`. That
+- Before Phase 1, a normal Windows build invoked `ResearchReinvented/Source/Install.bat`. That
   script waits, copies the payload into RimWorld's local `Mods` directory, and
   creates a ZIP. Phase 1 must separate build, deploy, and package operations.
 - The legacy Release project builds when the install target is disabled with
@@ -297,14 +297,14 @@ Extract a save fixture:
 uv run python tools/phase0/extract_legacy_save.py `
   $save `
   tests/fixtures/phase0/legacy-save.json `
-  --payload-root ResearchReinvented `
+  --payload-root . `
   --settings $settings
 ```
 
 Compile the legacy baseline without deploying:
 
 ```powershell
-dotnet build ResearchReinvented/Source/ResearchReinvented.csproj `
+dotnet build Source/ResearchReinvented.csproj `
   -c Release `
   -p:OS=Unix `
   -p:OutputPath=.runs/phase0/legacy-build/

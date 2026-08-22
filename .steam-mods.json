@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/pardeike/steam-mods/main/schemas/mod-project.schema.json",
+  "schemaVersion": 1,
+  "mod": {
+    "name": "Research Reinvented",
+    "fileName": "ResearchReinvented",
+    "packageId": "PeteTimesSix.ResearchReinvented",
+    "version": "1.6",
+    "rimworldVersion": "1.6",
+    "requiredDlc": []
+  },
+  "dependencies": {
+    "Krafs.Rimworld.Ref": "1.6.4871",
+    "Lib.Harmony.Ref": "2.4.2",
+    "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
+  },
+  "deployment": {
+    "pairedBridgeTools": false,
+    "gabsGame": "rimworld-steam",
+    "gabsProfile": "rimbridge-test",
+    "order": [
+      "brrainz.harmony",
+      "brrainz.rimbridgeserver_steam",
+      "ludeon.rimworld",
+      "PeteTimesSix.ResearchReinvented"
+    ]
+  },
+  "artwork": {
+    "preview": {
+      "path": "About/Preview.png",
+      "width": 640,
+      "height": 358
+    },
+    "icon": {
+      "path": "About/ModIcon.png",
+      "width": 64,
+      "height": 64
+    }
+  }
+}

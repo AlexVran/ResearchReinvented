@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<LangVersion>11.0</LangVersion>
+		<Deterministic>true</Deterministic>
+		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+		<FileAlignment>512</FileAlignment>
+		<ProjectGuid>{C1B28428-5A33-4A00-B4D9-6E38D6D7B442}</ProjectGuid>
+		<RootNamespace>PeteTimesSix.ResearchReinvented</RootNamespace>
+		<AssemblyName>ResearchReinvented</AssemblyName>
+		<Configurations>Debug;Release</Configurations>
+		<AssemblyTitle>Research Reinvented</AssemblyTitle>
+		<Product>Research Reinvented</Product>
+		<Description>Adds a more interesting research system.</Description>
+		<Copyright>Copyright © PeteTimesSix</Copyright>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.6.0.0</FileVersion>
+		<Version>$(ModVersion)</Version>
+		<OutputPath>$(RepositoryRoot)artifacts\bin\$(Configuration)\</OutputPath>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>embedded</DebugType>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugType>embedded</DebugType>
+		<Optimize>true</Optimize>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>5</WarningLevel>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+		<PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4871" PrivateAssets="all" />
+		<PackageReference Include="Lib.Harmony.Ref" Version="2.4.2" PrivateAssets="all" />
+	</ItemGroup>
+</Project>

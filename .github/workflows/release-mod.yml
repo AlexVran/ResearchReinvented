@@ -1,0 +1,40 @@
+name: Build release package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+          cache: true
+          cache-dependency-path: Source/packages.lock.json
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+
+      - name: Check and build
+        run: ./scripts/check
+
+      - name: Stage public package
+        run: uv run python scripts/package.py --no-build --output dist/ResearchReinvented.zip
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: ResearchReinvented
+          path: dist/ResearchReinvented.zip
+          if-no-files-found: error

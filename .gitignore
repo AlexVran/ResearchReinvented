@@ -351,3 +351,10 @@ MigrationBackup/
 
 # Local rewrite baselines, logs, full save fixtures, and generated reports.
 .runs/
+
+# Repository-local build and package output.
+dist/
+.idea/
+.vscode/
+.DS_Store
+._*

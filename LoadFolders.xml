@@ -1,0 +1,8 @@
+<loadFolders>
+	<v1.6>
+		<li>/</li>
+		<li>v1.6</li>
+		<li IfModActive="CETeam.CombatExtended">ModSpecific/v1.6/CombatExtended</li>
+		<li IfModActive="VanillaExpanded.VFEArchitect">ModSpecific/v1.6/VEArchitect</li>
+	</v1.6>
+</loadFolders>

@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ModMetaData>
+	<name>Research Reinvented</name>
+	<author>PeteTimesSix</author>
+	<packageId>PeteTimesSix.ResearchReinvented</packageId>
+	<modVersion>1.6</modVersion>
+	<modIconPath IgnoreIfNoMatchingField="True">ResearchReinventedModIcon</modIconPath>
+	<supportedVersions>
+		<li>1.6</li>
+	</supportedVersions>
+	<url>https://github.com/PeteTimesSix/ResearchReinvented</url>
+	<modDependencies>
+		<li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+		</li>
+	</modDependencies>
+	<loadBefore>
+		<li>Uuugggg.ReplaceStuff</li>
+		<li>vanillaexpanded.skills</li>
+	</loadBefore>
+	<loadAfter>
+		<li>brrainz.harmony</li>
+	</loadAfter>
+	<description>
+Consider inventing the humble mini-turret.
+
+In vanilla RimWorld, the process is:
+    A colonist sits in front of a research table and stares at it for five weeks.
+
+With Research Reinvented, the process can include any of the following:
+    Reverse engineer existing commandeered turrets.
+    See what you can learn from that ancient broken down security turret.
+    Analyse raw materials for their durability as turret armor.
+    Experiment with steel to figure out efficient barrel replacements.
+    Test out what modifications to the standard machine pistol or autopistol design might make for the best turret weapon.
+    Construct a prototype turret, even if it takes longer and the end product might need some fixing up right away.
+    Ask allies to provide some of their expertise, or demand that information from your prisoners.
+    Brainstorm solutions during social encounters between your colonists.
+
+Taking advantage of such research opportunities can significantly accelerate your research progress. However, if none are available, the fallback Theory research is equivalent in speed to vanilla research (this speed can be lowered in the mod settings, if you'd prefer an incentive to seek opportunities out).
+	</description>
+</ModMetaData>
