@@ -131,7 +131,7 @@ Final pre-documentation binary evidence for this Phase 9 change set:
 
 - `dotnet test ... Release`: 110 passed, 0 failed;
 - `scripts/build.py Debug`: passed; DLL size 685,568 bytes, SHA-256
-  `A5D5AFAA366BAC2677F1FBA0232BA37487E2F7A53DC0D98887068A8B8F24FE29`;
+  `B4648660B89A9B7E75B44CA0738C79878168F2D4B2EC2D22DAC89E81EE1CFDFA`;
 - `scripts/build.py Release`: passed; DLL size 630,272 bytes, SHA-256
   `3BAB685528976D9FAA4DD4893ED1ADE4CB6C4E9F0B11168582A1000D9C53EABC`;
 - package ID remains `PeteTimesSix.ResearchReinvented`;
