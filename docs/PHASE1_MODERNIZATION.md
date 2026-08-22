@@ -43,7 +43,7 @@ changing gameplay code. The original checkout remains untouched.
 - A normal build left the real RimWorld `Mods/ResearchReinvented` target absent.
 - Public package creation was byte-for-byte deterministic across consecutive
   runs. Final ZIP SHA-256:
-  `58F1C4FA1347D3792B4DB34C5F6B96647A95A26180A2D370D9FADD037B5FBC65`.
+  `B7EB4C9CC15420AB98944001360A3CA81E840F7E08629A798AFAA1991C52E98C`.
 - Shared `modctl audit-package` returned `ok`.
 - Shared `modctl validate` returned zero errors. Its sole warning is the
   intentionally deferred Phase 2 independent test project.

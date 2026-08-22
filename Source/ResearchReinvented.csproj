@@ -5,6 +5,7 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<LangVersion>11.0</LangVersion>
 		<Deterministic>true</Deterministic>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 		<FileAlignment>512</FileAlignment>
 		<ProjectGuid>{C1B28428-5A33-4A00-B4D9-6E38D6D7B442}</ProjectGuid>
