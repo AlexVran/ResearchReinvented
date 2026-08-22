@@ -33,6 +33,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			IReadOnlyList<IndexedThing> things,
 			IReadOnlyList<IndexedTerrain> terrains,
 			IReadOnlyList<IndexedSpecialOpportunity> specialOpportunities,
+			IReadOnlyList<OpportunityOverrideSnapshot> opportunityOverrides,
 			IReadOnlyList<AlternateGroup> alternateGroups,
 			IReadOnlyList<PrerequisiteCycle> prerequisiteCycles,
 			IReadOnlyList<DefIndexDiagnostic> diagnostics,
@@ -45,6 +46,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			Things = things;
 			Terrains = terrains;
 			SpecialOpportunities = specialOpportunities;
+			OpportunityOverrides = opportunityOverrides;
 			AlternateGroups = alternateGroups;
 			PrerequisiteCycles = prerequisiteCycles;
 			Diagnostics = diagnostics;
@@ -79,6 +81,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public IReadOnlyList<IndexedTerrain> Terrains { get; }
 
 		public IReadOnlyList<IndexedSpecialOpportunity> SpecialOpportunities { get; }
+
+		public IReadOnlyList<OpportunityOverrideSnapshot> OpportunityOverrides { get; }
 
 		public IReadOnlyList<AlternateGroup> AlternateGroups { get; }
 
@@ -173,7 +177,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 
 			foreach (var recipe in Recipes)
 			{
-				lines.Add($"recipe|{recipe.Identity}");
+				lines.Add($"recipe|{recipe.Identity}|{recipe.Traits}");
 				lines.AddRange(recipe.ResearchPrerequisites.Select(project => $"recipe-project|{recipe.Identity}|{project}"));
 				lines.AddRange(recipe.Products.Select(product => $"product|{recipe.Identity}|{product.Definition}|{Float(product.Count)}"));
 				lines.AddRange(recipe.Users.Select(user => $"recipe-user|{recipe.Identity}|{user}"));
@@ -182,6 +186,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 
 			foreach (var thing in Things)
 			{
+				lines.Add($"thing|{thing.Identity}|{thing.Traits}|{thing.CorpseDefinition}");
 				lines.AddRange(thing.ConstructionCosts.Select(requirement => RequirementLine("thing-cost", thing.Identity, requirement)));
 				lines.AddRange(thing.FuelRequirements.Select(requirement => RequirementLine("fuel", thing.Identity, requirement)));
 				if (thing.HarvestedProduct != null)
@@ -189,13 +194,19 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			}
 
 			foreach (var terrain in Terrains)
+			{
+				lines.Add($"terrain|{terrain.Identity}|{terrain.Traits}");
 				lines.AddRange(terrain.ConstructionCosts.Select(requirement => RequirementLine("terrain-cost", terrain.Identity, requirement)));
+			}
 
 			foreach (var special in SpecialOpportunities)
 			{
 				var subjects = string.Join(",", special.Subjects.Select(subject => $"{subject.Kind}:{subject.Identity}"));
 				lines.Add($"special|{special.Identity}|{special.Project}|{special.OpportunityType}|{special.RelationOverride}|{special.ForDirect}|{special.ForAncestor}|{special.ForDescendant}|{special.AlternateMode}|{Float(special.Importance)}|{special.Rare}|{special.Freebie}|{subjects}");
 			}
+
+			lines.AddRange(OpportunityOverrides.Select(item =>
+				$"override|{item.SourceDef}|{item.Action}|{item.Project}|{item.OpportunityType}|{item.Subject}|{item.Relation}|{item.ReplacementOpportunityType}|{item.ReplacementSubject}|{Float(item.ImportanceMultiplier)}"));
 
 			lines.AddRange(AlternateGroups.Select(group =>
 				$"alternate|{group.Key}|{group.Mode}|{group.HasExplicitSource}|{group.HasInferredSource}|{string.Join(",", group.Members)}|{string.Join(",", group.SourceDefs)}"));
@@ -256,6 +267,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 				var terrainSnapshots = SnapshotDefinitions(source.Terrains, "terrain", snapshot => snapshot.Identity, TerrainDescriptor);
 				var specialSnapshots = SnapshotDefinitions(source.SpecialOpportunities, "special opportunity", snapshot => snapshot.Identity, SpecialDescriptor);
 				var alternateLinks = SnapshotLinks(source.AlternateLinks);
+				var overrides = SnapshotOverrides(source.OpportunityOverrides);
 
 				thingOrdinals = thingSnapshots.Select((thing, ordinal) => new { thing.Identity, Ordinal = ordinal })
 					.ToDictionary(item => item.Identity, item => item.Ordinal);
@@ -281,6 +293,7 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 					AsReadOnly(things),
 					AsReadOnly(terrains),
 					AsReadOnly(specials),
+					AsReadOnly(overrides),
 					AsReadOnly(alternateGroups),
 					AsReadOnly(cycles),
 					AsReadOnly(diagnostics.Values.OrderBy(DiagnosticKey, StringComparer.Ordinal).ToArray()),
@@ -321,6 +334,24 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 					.Cast<AlternateLinkSnapshot>()
 					.OrderBy(AlternateDescriptor, StringComparer.Ordinal)
 					.ToArray();
+			}
+
+			private OpportunityOverrideSnapshot[] SnapshotOverrides(IEnumerable<OpportunityOverrideSnapshot?> values)
+			{
+				var materialized = (values ?? Enumerable.Empty<OpportunityOverrideSnapshot?>()).ToArray();
+				if (materialized.Any(value => value == null))
+					AddDiagnostic(DefIndexDiagnosticKind.NullDefinition, "Loaded opportunity override snapshot was null.");
+				var valid = new List<OpportunityOverrideSnapshot>();
+				foreach (var value in materialized.Where(value => value != null).Cast<OpportunityOverrideSnapshot>())
+				{
+					if (float.IsNaN(value.ImportanceMultiplier) || float.IsInfinity(value.ImportanceMultiplier) || value.ImportanceMultiplier < 0f)
+					{
+						AddDiagnostic(DefIndexDiagnosticKind.InvalidRequirement, $"Opportunity override on {value.SourceDef} has an invalid importance multiplier.", value.SourceDef);
+						continue;
+					}
+					valid.Add(value);
+				}
+				return valid.OrderBy(OverrideDescriptor, StringComparer.Ordinal).ToArray();
 			}
 
 			private IndexedProject CreateProject(ProjectDefSnapshot snapshot, IReadOnlyList<PrerequisiteEdge> allEdges)
@@ -383,7 +414,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 					ValidIdentities(snapshot.ResearchPrerequisites, snapshot.Identity, "recipe prerequisite"),
 					AsReadOnly(products),
 					ValidIdentities(snapshot.Users, snapshot.Identity, "recipe user"),
-					ingredients);
+					ingredients,
+					snapshot.Traits);
 			}
 
 			private IndexedThing CreateThing(ThingDefSnapshot snapshot)
@@ -393,7 +425,9 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 					ValidIdentities(snapshot.ResearchPrerequisites, snapshot.Identity, "thing prerequisite"),
 					ValidRequirements(snapshot.ConstructionCosts, snapshot.Identity, "construction cost"),
 					snapshot.HarvestedProduct,
-					ValidRequirements(snapshot.FuelRequirements, snapshot.Identity, "fuel filter"));
+					ValidRequirements(snapshot.FuelRequirements, snapshot.Identity, "fuel filter"),
+					snapshot.Traits,
+					snapshot.CorpseDefinition);
 			}
 
 			private IndexedTerrain CreateTerrain(TerrainDefSnapshot snapshot)
@@ -401,7 +435,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 				return new IndexedTerrain(
 					snapshot.Identity,
 					ValidIdentities(snapshot.ResearchPrerequisites, snapshot.Identity, "terrain prerequisite"),
-					ValidRequirements(snapshot.ConstructionCosts, snapshot.Identity, "construction cost"));
+					ValidRequirements(snapshot.ConstructionCosts, snapshot.Identity, "construction cost"),
+					snapshot.Traits);
 			}
 
 			private IndexedSpecialOpportunity[] CreateSpecials(
@@ -822,17 +857,17 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 
 			private static string RecipeDescriptor(RecipeDefSnapshot recipe)
 			{
-				return $"{recipe.Identity}|{Identities(recipe.ResearchPrerequisites)}|{string.Join(",", recipe.Products.Select(product => product?.Definition?.CanonicalValue))}|{Identities(recipe.Users)}|{recipe.Ingredients.Count}";
+				return $"{recipe.Identity}|{Identities(recipe.ResearchPrerequisites)}|{string.Join(",", recipe.Products.Select(product => product?.Definition?.CanonicalValue))}|{Identities(recipe.Users)}|{recipe.Ingredients.Count}|{recipe.Traits}";
 			}
 
 			private static string ThingDescriptor(ThingDefSnapshot thing)
 			{
-				return $"{thing.Identity}|{Identities(thing.ResearchPrerequisites)}|{thing.ConstructionCosts.Count}|{thing.HarvestedProduct}|{thing.FuelRequirements.Count}";
+				return $"{thing.Identity}|{Identities(thing.ResearchPrerequisites)}|{thing.ConstructionCosts.Count}|{thing.HarvestedProduct}|{thing.FuelRequirements.Count}|{thing.Traits}|{thing.CorpseDefinition}";
 			}
 
 			private static string TerrainDescriptor(TerrainDefSnapshot terrain)
 			{
-				return $"{terrain.Identity}|{Identities(terrain.ResearchPrerequisites)}|{terrain.ConstructionCosts.Count}";
+				return $"{terrain.Identity}|{Identities(terrain.ResearchPrerequisites)}|{terrain.ConstructionCosts.Count}|{terrain.Traits}";
 			}
 
 			private static string SpecialDescriptor(SpecialOpportunitySnapshot special)
@@ -843,6 +878,11 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			private static string AlternateDescriptor(AlternateLinkSnapshot link)
 			{
 				return $"{link.Mode}|{link.Original}|{link.Alternate}|{link.SourceDef}|{link.Inferred}";
+			}
+
+			private static string OverrideDescriptor(OpportunityOverrideSnapshot item)
+			{
+				return $"{item.SourceDef}|{item.Action}|{item.Project}|{item.OpportunityType}|{item.Subject}|{item.Relation}|{item.ReplacementOpportunityType}|{item.ReplacementSubject}|{Float(item.ImportanceMultiplier)}";
 			}
 
 			private static string Identities(IEnumerable<DefIdentity?> identities)

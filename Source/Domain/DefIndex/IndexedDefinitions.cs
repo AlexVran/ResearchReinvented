@@ -124,13 +124,15 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			IReadOnlyList<DefIdentity> researchPrerequisites,
 			IReadOnlyList<IndexedDefCount> products,
 			IReadOnlyList<DefIdentity> users,
-			IReadOnlyList<IndexedRequirement> ingredients)
+			IReadOnlyList<IndexedRequirement> ingredients,
+			RecipeDefTraits traits)
 		{
 			Identity = identity;
 			ResearchPrerequisites = researchPrerequisites;
 			Products = products;
 			Users = users;
 			Ingredients = ingredients;
+			Traits = traits;
 		}
 
 		public DefIdentity Identity { get; }
@@ -142,6 +144,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public IReadOnlyList<DefIdentity> Users { get; }
 
 		public IReadOnlyList<IndexedRequirement> Ingredients { get; }
+
+		public RecipeDefTraits Traits { get; }
 	}
 
 	public sealed class IndexedThing
@@ -151,13 +155,17 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			IReadOnlyList<DefIdentity> researchPrerequisites,
 			IReadOnlyList<IndexedRequirement> constructionCosts,
 			DefIdentity? harvestedProduct,
-			IReadOnlyList<IndexedRequirement> fuelRequirements)
+			IReadOnlyList<IndexedRequirement> fuelRequirements,
+			ThingDefTraits traits,
+			DefIdentity? corpseDefinition)
 		{
 			Identity = identity;
 			ResearchPrerequisites = researchPrerequisites;
 			ConstructionCosts = constructionCosts;
 			HarvestedProduct = harvestedProduct;
 			FuelRequirements = fuelRequirements;
+			Traits = traits;
+			CorpseDefinition = corpseDefinition;
 		}
 
 		public DefIdentity Identity { get; }
@@ -169,6 +177,10 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public DefIdentity? HarvestedProduct { get; }
 
 		public IReadOnlyList<IndexedRequirement> FuelRequirements { get; }
+
+		public ThingDefTraits Traits { get; }
+
+		public DefIdentity? CorpseDefinition { get; }
 	}
 
 	public sealed class IndexedTerrain
@@ -176,11 +188,13 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		internal IndexedTerrain(
 			DefIdentity identity,
 			IReadOnlyList<DefIdentity> researchPrerequisites,
-			IReadOnlyList<IndexedRequirement> constructionCosts)
+			IReadOnlyList<IndexedRequirement> constructionCosts,
+			TerrainDefTraits traits)
 		{
 			Identity = identity;
 			ResearchPrerequisites = researchPrerequisites;
 			ConstructionCosts = constructionCosts;
+			Traits = traits;
 		}
 
 		public DefIdentity Identity { get; }
@@ -188,6 +202,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public IReadOnlyList<DefIdentity> ResearchPrerequisites { get; }
 
 		public IReadOnlyList<IndexedRequirement> ConstructionCosts { get; }
+
+		public TerrainDefTraits Traits { get; }
 	}
 
 	public sealed class IndexedSpecialOpportunity

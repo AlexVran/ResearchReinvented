@@ -6,8 +6,11 @@ using System.Linq;
 using PeteTimesSix.ResearchReinvented.Defs;
 using PeteTimesSix.ResearchReinvented.Domain;
 using PeteTimesSix.ResearchReinvented.Domain.DefIndex;
+using PeteTimesSix.ResearchReinvented.Extensions;
 using PeteTimesSix.ResearchReinvented.Opportunities;
 using PeteTimesSix.ResearchReinvented.OpportunityComps;
+using PeteTimesSix.ResearchReinvented.Rimworld.DefModExtensions;
+using PeteTimesSix.ResearchReinvented.Utilities;
 using RimWorld;
 using Verse;
 
@@ -35,6 +38,12 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 			Terrains = terrains.Select(CaptureTerrain).ToArray();
 			SpecialOpportunities = specials.Select(CaptureSpecial).ToArray();
 			AlternateLinks = alternates.SelectMany(CaptureAlternateLinks).ToArray();
+			OpportunityOverrides = projects.Cast<Def>()
+				.Concat(recipes)
+				.Concat(things)
+				.Concat(terrains)
+				.SelectMany(CaptureOverrides)
+				.ToArray();
 		}
 
 		public IEnumerable<ProjectDefSnapshot?> Projects { get; }
@@ -48,6 +57,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 		public IEnumerable<SpecialOpportunitySnapshot?> SpecialOpportunities { get; }
 
 		public IEnumerable<AlternateLinkSnapshot?> AlternateLinks { get; }
+
+		public IEnumerable<OpportunityOverrideSnapshot?> OpportunityOverrides { get; }
 
 		private static ProjectDefSnapshot? CaptureProject(ResearchProjectDef? project, IEnumerable<Def> unlocks)
 		{
@@ -78,7 +89,8 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 					.Select(product => new DefCountSnapshot(IdentityFor<ThingDef>(product?.thingDef), product?.count ?? 0f)),
 				IdentitiesFor<ThingDef>(users),
 				(recipe.ingredients ?? Enumerable.Empty<IngredientCount>())
-					.Select(ingredient => CaptureRequirement(ingredient, recipe.fixedIngredientFilter)));
+					.Select(ingredient => CaptureRequirement(ingredient, recipe.fixedIngredientFilter)),
+				CaptureRecipeTraits(recipe));
 		}
 
 		private static ThingDefSnapshot? CaptureThing(ThingDef? thing, IReadOnlyList<ThingDef> allThings)
@@ -106,7 +118,9 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 				IdentitiesFor<ResearchProjectDef>(thing.researchPrerequisites),
 				costs,
 				IdentityFor<ThingDef>(thing.plant?.harvestedThingDef),
-				fuels);
+				fuels,
+				CaptureThingTraits(thing),
+				IdentityFor<ThingDef>(thing.race?.corpseDef));
 		}
 
 		private static TerrainDefSnapshot? CaptureTerrain(TerrainDef? terrain)
@@ -118,7 +132,65 @@ namespace PeteTimesSix.ResearchReinvented.Rimworld
 					identity,
 					IdentitiesFor<ResearchProjectDef>(terrain!.researchPrerequisites),
 					(terrain.CostList ?? Enumerable.Empty<ThingDefCountClass>())
-						.Select(cost => DefRequirementSnapshot.Fixed(IdentityFor<ThingDef>(cost?.thingDef), cost?.count ?? 0f)));
+						.Select(cost => DefRequirementSnapshot.Fixed(IdentityFor<ThingDef>(cost?.thingDef), cost?.count ?? 0f)),
+					(terrain.IsSoil ? TerrainDefTraits.Soil : TerrainDefTraits.None)
+						| (terrain.BuildableByPlayer ? TerrainDefTraits.PlayerBuildable : TerrainDefTraits.None));
+		}
+
+		private static RecipeDefTraits CaptureRecipeTraits(RecipeDef recipe)
+		{
+			var traits = recipe.IsSurgery ? RecipeDefTraits.Surgery | RecipeDefTraits.Meaningful : RecipeDefTraits.None;
+			if (recipe.modExtensions != null && recipe.modExtensions.Any(extension => extension is Blacklisted))
+				traits |= RecipeDefTraits.Blacklisted;
+			if ((recipe.products ?? Enumerable.Empty<ThingDefCountClass>()).Any(product => product?.thingDef != null))
+				traits |= RecipeDefTraits.Meaningful;
+			return traits;
+		}
+
+		private static ThingDefTraits CaptureThingTraits(ThingDef thing)
+		{
+			var traits = ThingDefTraits.None;
+			if (thing.IsMedicine) traits |= ThingDefTraits.Medicine;
+			if (thing.IsDrug) traits |= ThingDefTraits.Drug;
+			if (thing.ingestible != null) traits |= ThingDefTraits.Ingestible;
+			if (thing.IsTrulyRawFood()) traits |= ThingDefTraits.RawFood;
+			if (thing.thingClass != null && typeof(Plant).IsAssignableFrom(thing.thingClass)) traits |= ThingDefTraits.Plant;
+			if (thing.thingClass != null && typeof(Pawn).IsAssignableFrom(thing.thingClass)) traits |= ThingDefTraits.Pawn;
+			if (thing.race?.IsFleshModAware() == true) traits |= ThingDefTraits.FleshPawn;
+			if (thing.IsCorpse) traits |= ThingDefTraits.Corpse;
+			if (thing.EverHaulable) traits |= ThingDefTraits.Haulable;
+			if (thing.BuildableByPlayer) traits |= ThingDefTraits.PlayerBuildable;
+			if (thing.IsInstantBuild()) traits |= ThingDefTraits.InstantBuild;
+			if (thing.GetStatValueAbstract(StatDefOf.Flammability) >= 0.5f) traits |= ThingDefTraits.Flammable;
+			return traits;
+		}
+
+		private static IEnumerable<OpportunityOverrideSnapshot?> CaptureOverrides(Def owner)
+		{
+			var source = IdentityFor(owner);
+			if (source == null)
+				yield break;
+			var extension = owner.modExtensions?.OfType<ResearchOpportunityOverrides>().FirstOrDefault();
+			foreach (var item in extension?.overrides ?? Enumerable.Empty<ResearchOpportunityOverride>())
+			{
+				if (item == null)
+				{
+					yield return null;
+					continue;
+				}
+				var implicitProject = owner is ResearchProjectDef ? source : null;
+				var implicitSubject = owner is ResearchProjectDef ? null : source;
+				yield return new OpportunityOverrideSnapshot(
+					source,
+					item.action,
+					IdentityFor<ResearchProjectDef>(item.project) ?? implicitProject,
+					IdentityFor<ResearchOpportunityTypeDef>(item.opportunityType),
+					IdentityFor(item.subject) ?? implicitSubject,
+					item.relation,
+					IdentityFor<ResearchOpportunityTypeDef>(item.replacementOpportunityType),
+					IdentityFor(item.replacementSubject),
+					item.importanceMultiplier);
+			}
 		}
 
 		private static SpecialOpportunitySnapshot? CaptureSpecial(SpecialResearchOpportunityDef? special)

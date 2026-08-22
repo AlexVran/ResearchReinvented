@@ -21,6 +21,43 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		IEnumerable<SpecialOpportunitySnapshot?> SpecialOpportunities { get; }
 
 		IEnumerable<AlternateLinkSnapshot?> AlternateLinks { get; }
+
+		IEnumerable<OpportunityOverrideSnapshot?> OpportunityOverrides { get; }
+	}
+
+	[Flags]
+	public enum ThingDefTraits
+	{
+		None = 0,
+		Medicine = 1 << 0,
+		Drug = 1 << 1,
+		Ingestible = 1 << 2,
+		RawFood = 1 << 3,
+		Plant = 1 << 4,
+		Pawn = 1 << 5,
+		FleshPawn = 1 << 6,
+		Corpse = 1 << 7,
+		Haulable = 1 << 8,
+		PlayerBuildable = 1 << 9,
+		InstantBuild = 1 << 10,
+		Flammable = 1 << 11
+	}
+
+	[Flags]
+	public enum RecipeDefTraits
+	{
+		None = 0,
+		Surgery = 1 << 0,
+		Meaningful = 1 << 1,
+		Blacklisted = 1 << 2
+	}
+
+	[Flags]
+	public enum TerrainDefTraits
+	{
+		None = 0,
+		Soil = 1 << 0,
+		PlayerBuildable = 1 << 1
 	}
 
 	public sealed class ProjectDefSnapshot
@@ -66,13 +103,15 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			IEnumerable<DefIdentity?>? researchPrerequisites = null,
 			IEnumerable<DefCountSnapshot?>? products = null,
 			IEnumerable<DefIdentity?>? users = null,
-			IEnumerable<DefRequirementSnapshot?>? ingredients = null)
+			IEnumerable<DefRequirementSnapshot?>? ingredients = null,
+			RecipeDefTraits traits = RecipeDefTraits.None)
 		{
 			Identity = identity ?? throw new ArgumentNullException(nameof(identity));
 			ResearchPrerequisites = Snapshot(researchPrerequisites);
 			Products = Snapshot(products);
 			Users = Snapshot(users);
 			Ingredients = Snapshot(ingredients);
+			Traits = traits;
 		}
 
 		public DefIdentity Identity { get; }
@@ -84,6 +123,8 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public IReadOnlyList<DefIdentity?> Users { get; }
 
 		public IReadOnlyList<DefRequirementSnapshot?> Ingredients { get; }
+
+		public RecipeDefTraits Traits { get; }
 
 		private static IReadOnlyList<T?> Snapshot<T>(IEnumerable<T?>? values) where T : class
 		{
@@ -98,13 +139,17 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 			IEnumerable<DefIdentity?>? researchPrerequisites = null,
 			IEnumerable<DefRequirementSnapshot?>? constructionCosts = null,
 			DefIdentity? harvestedProduct = null,
-			IEnumerable<DefRequirementSnapshot?>? fuelRequirements = null)
+			IEnumerable<DefRequirementSnapshot?>? fuelRequirements = null,
+			ThingDefTraits traits = ThingDefTraits.None,
+			DefIdentity? corpseDefinition = null)
 		{
 			Identity = identity ?? throw new ArgumentNullException(nameof(identity));
 			ResearchPrerequisites = Snapshot(researchPrerequisites);
 			ConstructionCosts = Snapshot(constructionCosts);
 			HarvestedProduct = harvestedProduct;
 			FuelRequirements = Snapshot(fuelRequirements);
+			Traits = traits;
+			CorpseDefinition = corpseDefinition;
 		}
 
 		public DefIdentity Identity { get; }
@@ -117,6 +162,10 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 
 		public IReadOnlyList<DefRequirementSnapshot?> FuelRequirements { get; }
 
+		public ThingDefTraits Traits { get; }
+
+		public DefIdentity? CorpseDefinition { get; }
+
 		private static IReadOnlyList<T?> Snapshot<T>(IEnumerable<T?>? values) where T : class
 		{
 			return new ReadOnlyCollection<T?>((values ?? Enumerable.Empty<T?>()).ToArray());
@@ -128,13 +177,15 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public TerrainDefSnapshot(
 			DefIdentity identity,
 			IEnumerable<DefIdentity?>? researchPrerequisites = null,
-			IEnumerable<DefRequirementSnapshot?>? constructionCosts = null)
+			IEnumerable<DefRequirementSnapshot?>? constructionCosts = null,
+			TerrainDefTraits traits = TerrainDefTraits.None)
 		{
 			Identity = identity ?? throw new ArgumentNullException(nameof(identity));
 			ResearchPrerequisites = new ReadOnlyCollection<DefIdentity?>(
 				(researchPrerequisites ?? Enumerable.Empty<DefIdentity?>()).ToArray());
 			ConstructionCosts = new ReadOnlyCollection<DefRequirementSnapshot?>(
 				(constructionCosts ?? Enumerable.Empty<DefRequirementSnapshot?>()).ToArray());
+			Traits = traits;
 		}
 
 		public DefIdentity Identity { get; }
@@ -142,6 +193,51 @@ namespace PeteTimesSix.ResearchReinvented.Domain.DefIndex
 		public IReadOnlyList<DefIdentity?> ResearchPrerequisites { get; }
 
 		public IReadOnlyList<DefRequirementSnapshot?> ConstructionCosts { get; }
+
+		public TerrainDefTraits Traits { get; }
+	}
+
+	public enum OpportunityOverrideAction
+	{
+		Force,
+		Suppress,
+		Replace,
+		Reweight
+	}
+
+	public sealed class OpportunityOverrideSnapshot
+	{
+		public OpportunityOverrideSnapshot(
+			DefIdentity sourceDef,
+			OpportunityOverrideAction action,
+			DefIdentity? project = null,
+			DefIdentity? opportunityType = null,
+			DefIdentity? subject = null,
+			ResearchRelation? relation = null,
+			DefIdentity? replacementOpportunityType = null,
+			DefIdentity? replacementSubject = null,
+			float importanceMultiplier = 1f)
+		{
+			SourceDef = sourceDef ?? throw new ArgumentNullException(nameof(sourceDef));
+			Action = action;
+			Project = project;
+			OpportunityType = opportunityType;
+			Subject = subject;
+			Relation = relation;
+			ReplacementOpportunityType = replacementOpportunityType;
+			ReplacementSubject = replacementSubject;
+			ImportanceMultiplier = importanceMultiplier;
+		}
+
+		public DefIdentity SourceDef { get; }
+		public OpportunityOverrideAction Action { get; }
+		public DefIdentity? Project { get; }
+		public DefIdentity? OpportunityType { get; }
+		public DefIdentity? Subject { get; }
+		public ResearchRelation? Relation { get; }
+		public DefIdentity? ReplacementOpportunityType { get; }
+		public DefIdentity? ReplacementSubject { get; }
+		public float ImportanceMultiplier { get; }
 	}
 
 	public sealed class DefCountSnapshot

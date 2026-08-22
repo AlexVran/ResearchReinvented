@@ -79,7 +79,7 @@ and prototype Harmony work in a single unreviewable change.
 - [x] Phase 2: add characterization fixtures and test seams
 - [x] Phase 3: introduce the new domain contracts
 - [x] Phase 4: build the immutable Def index and evidence graph
-- [ ] Phase 5: implement opportunity rules
+- [x] Phase 5: implement opportunity rules
 - [ ] Phase 6: implement normalization, scoring, selection, and diagnostics
 - [ ] Phase 7: run the new generator in shadow mode
 - [ ] Phase 8: introduce the opportunity service and versioned save state

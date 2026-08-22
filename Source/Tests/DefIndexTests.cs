@@ -354,6 +354,8 @@ public sealed class DefIndexTests
 		public IEnumerable<SpecialOpportunitySnapshot?> SpecialOpportunities { get; init; } = [];
 
 		public IEnumerable<AlternateLinkSnapshot?> AlternateLinks { get; init; } = [];
+
+		public IEnumerable<OpportunityOverrideSnapshot?> OpportunityOverrides { get; init; } = [];
 	}
 
 	private sealed class CountingSource : IResearchDefSnapshotSource
@@ -364,6 +366,7 @@ public sealed class DefIndexTests
 		private readonly CountingEnumerable<TerrainDefSnapshot?> terrains = new([]);
 		private readonly CountingEnumerable<SpecialOpportunitySnapshot?> specials = new([]);
 		private readonly CountingEnumerable<AlternateLinkSnapshot?> alternates = new([]);
+		private readonly CountingEnumerable<OpportunityOverrideSnapshot?> overrides = new([]);
 
 		public IEnumerable<ProjectDefSnapshot?> Projects => projects;
 
@@ -377,7 +380,9 @@ public sealed class DefIndexTests
 
 		public IEnumerable<AlternateLinkSnapshot?> AlternateLinks => alternates;
 
-		public IEnumerable<ICountingEnumerable> Collections => [projects, recipes, things, terrains, specials, alternates];
+		public IEnumerable<OpportunityOverrideSnapshot?> OpportunityOverrides => overrides;
+
+		public IEnumerable<ICountingEnumerable> Collections => [projects, recipes, things, terrains, specials, alternates, overrides];
 	}
 
 	private interface ICountingEnumerable
